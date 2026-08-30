@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Manifest">
+<title>Furniture manifest</title>
+<style>
+  :root{
+    --ink:#16211F; --ink-soft:#4C5A57; --paper:#EEF1EE; --card:#FFFFFF; --line:#D2D9D5;
+    --lake:#2E6E6B; --lake-soft:#E2EFEE; --hold:#9A6516; --sell:#8C3A3A; --give:#4A5E8C;
+    --buy:#6E5390; --ghost:#8A9793;
+    --shadow:0 1px 2px rgba(22,33,31,.06), 0 8px 20px rgba(22,33,31,.06);
+    --tag:"Avenir Next Condensed","Avenir Next","Oswald","Segoe UI",system-ui,sans-serif;
+    --body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+    --num:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;
+       -webkit-font-smoothing:antialiased;padding-bottom:150px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 14px}
+
+  header{position:sticky;top:0;z-index:20;background:rgba(238,241,238,.94);
+         backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--line);
+         padding-top:env(safe-area-inset-top)}
+  .head-row{display:flex;align-items:flex-end;gap:12px;padding:13px 0 9px}
+  h1{font-family:var(--tag);font-size:25px;letter-spacing:.06em;text-transform:uppercase;margin:0;line-height:1;font-weight:600}
+  .sub{font-size:12px;color:var(--ink-soft);margin-top:5px}
+  .head-actions{margin-left:auto;display:flex;gap:7px;align-items:center;flex-shrink:0}
+  .save-dot{font-family:var(--tag);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ghost);white-space:nowrap}
+  .save-dot.on{color:var(--lake)}
+
+  button{font-family:inherit;font-size:inherit;cursor:pointer}
+  .btn{border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:2px;padding:10px 14px;
+       font-family:var(--tag);letter-spacing:.1em;text-transform:uppercase;font-size:12px}
+  .btn:active{transform:translateY(1px)}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+  .btn.sm{padding:7px 9px;font-size:11px}
+  .btn[disabled]{opacity:.35}
+
+  .warn{background:var(--sell);color:#fff;padding:10px 14px;font-size:13px;line-height:1.4}
+  .warn button{background:none;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:2px;
+    font-size:11px;padding:3px 7px;margin-left:8px;font-family:var(--tag);letter-spacing:.1em;text-transform:uppercase}
+
+  .findrow{padding:0 0 8px}
+  .findrow input{width:100%;border:1px solid var(--line);border-radius:2px;padding:9px 11px;
+                 font-family:var(--body);font-size:15px;background:#fff;color:var(--ink)}
+  .findrow input:focus{outline:none;border-color:var(--ink)}
+  .toolrow{display:flex;gap:6px;padding:0 0 9px}
+  .toolrow .btn{flex:1}
+
+  .rail{display:flex;gap:6px;overflow-x:auto;padding:0 0 11px;scrollbar-width:none}
+  .rail::-webkit-scrollbar{display:none}
+  .rail button{flex:0 0 auto;background:transparent;border:1px solid var(--line);border-radius:2px;
+    padding:7px 11px;color:var(--ink-soft);font-family:var(--tag);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  .rail button .c{font-family:var(--num);letter-spacing:0;font-size:11px;opacity:.7;margin-left:6px}
+  .rail button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:14px;padding:16px 0 0}
+  @media(min-width:620px){.grid{grid-template-columns:1fr 1fr}}
+  @media(min-width:980px){.grid{grid-template-columns:1fr 1fr 1fr}}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:3px;box-shadow:var(--shadow);
+        overflow:hidden;display:flex;flex-direction:column;animation:rise .24s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.card{animation:none}}
+  .card.picked{border-color:var(--lake);box-shadow:0 0 0 2px var(--lake)}
+  .card.wish{border-color:var(--buy)}
+
+  .shot{position:relative;background:#DDE3E0;aspect-ratio:4/3;overflow:hidden}
+  .shot.blank{background:repeating-linear-gradient(45deg,#E9EDEA,#E9EDEA 10px,#E3E8E5 10px,#E3E8E5 20px)}
+  .shot img{width:100%;height:100%;object-fit:cover;display:block}
+  .addphoto{position:absolute;inset:0;width:100%;height:100%;border:none;background:transparent;
+    color:var(--ink-soft);font-family:var(--tag);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+  .tagno{position:absolute;left:0;top:0;background:var(--ink);color:#fff;font-family:var(--num);font-size:12px;padding:5px 9px}
+  .qtybadge{position:absolute;left:0;top:26px;background:var(--ink-soft);color:#fff;font-family:var(--num);font-size:11px;padding:3px 8px}
+  .buytag{position:absolute;left:0;bottom:0;background:var(--buy);color:#fff;font-family:var(--tag);
+    font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px}
+  .kill{position:absolute;right:6px;top:6px;width:30px;height:30px;border-radius:50%;border:none;
+        background:rgba(22,33,31,.55);color:#fff;font-size:16px;display:grid;place-items:center}
+  .tick{position:absolute;right:6px;top:6px;width:32px;height:32px;border-radius:50%;
+        border:2px solid #fff;background:rgba(22,33,31,.45);color:#fff;font-size:17px;display:grid;place-items:center}
+  .tick.on{background:var(--lake)}
+  .stamp{position:absolute;right:0;bottom:0;padding:6px 10px;font-family:var(--tag);font-size:12px;
+    letter-spacing:.1em;text-transform:uppercase;color:#fff;max-width:78%;text-align:right}
+  .stamp.lake{background:var(--lake)} .stamp.hold{background:var(--hold)}
+  .stamp.sell{background:var(--sell)} .stamp.give{background:var(--give)}
+
+  .body{padding:12px 12px 14px;display:flex;flex-direction:column;gap:11px}
+  textarea.desc{width:100%;border:none;border-bottom:1px dashed var(--line);background:transparent;
+    font-family:var(--body);font-size:16px;color:var(--ink);resize:none;padding:2px 0 7px;line-height:1.35;overflow:hidden}
+  textarea.desc:focus{outline:none;border-bottom-color:var(--ink)}
+  textarea.desc::placeholder{color:var(--ghost)}
+
+  .field{display:flex;flex-direction:column;gap:6px}
+  .lbl{font-family:var(--tag);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ghost)}
+  .lbl.needs{color:var(--lake);font-weight:600}
+  .opts{display:flex;flex-wrap:wrap;gap:6px}
+  .opt{border:1px solid var(--line);background:transparent;border-radius:2px;padding:8px 10px;font-size:13px;color:var(--ink-soft);line-height:1.1}
+  .opt[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+  .opt.lake[aria-pressed="true"]{background:var(--lake);border-color:var(--lake)}
+  .opt.hold[aria-pressed="true"]{background:var(--hold);border-color:var(--hold)}
+  .opt.sell[aria-pressed="true"]{background:var(--sell);border-color:var(--sell)}
+  .opt.give[aria-pressed="true"]{background:var(--give);border-color:var(--give)}
+  .opt.buy[aria-pressed="true"]{background:var(--buy);border-color:var(--buy);color:#fff}
+  .rooms{display:none} .rooms.show{display:flex;flex-direction:column;gap:6px}
+  .rooms .opt[aria-pressed="true"]{background:var(--lake-soft);border-color:var(--lake);color:var(--lake);font-weight:600}
+
+  .dims{display:flex;gap:6px;align-items:center}
+  .dims input{width:100%;min-width:0;border:1px solid var(--line);border-radius:2px;padding:7px 8px;
+    font-family:var(--num);font-size:14px;text-align:center;background:#fff;color:var(--ink)}
+  .dims span{color:var(--ghost);font-size:12px}
+  .dims input:focus,.notes:focus{outline:none;border-color:var(--ink)}
+  .notes{width:100%;border:1px solid var(--line);border-radius:2px;padding:7px 9px;
+    font-family:var(--body);font-size:14px;background:#fff;color:var(--ink);resize:none;overflow:hidden;line-height:1.35}
+  .more{background:none;border:none;padding:0;color:var(--ink-soft);font-family:var(--tag);
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-align:left}
+  .extra{display:none;flex-direction:column;gap:11px} .extra.show{display:flex}
+
+  .empty{border:1px dashed var(--line);border-radius:3px;background:var(--card);padding:34px 22px;text-align:center;margin-top:18px}
+  .empty h2{font-family:var(--tag);font-size:18px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 8px}
+  .empty p{margin:0 auto 18px;max-width:40ch;color:var(--ink-soft);font-size:14px;line-height:1.5}
+
+  .board-group{margin:0 0 26px}
+  .board-head{font-family:var(--tag);font-size:14px;letter-spacing:.1em;text-transform:uppercase;
+    border-bottom:2px solid var(--ink);padding-bottom:6px;margin:0 0 12px;display:flex;justify-content:space-between}
+  .board-head span{color:var(--ink-soft);font-family:var(--num);font-size:12px;letter-spacing:0}
+  .board{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(min-width:620px){.board{grid-template-columns:repeat(3,1fr)}}
+  @media(min-width:980px){.board{grid-template-columns:repeat(4,1fr)}}
+  .tile{background:#fff;border:1px solid var(--line);border-radius:3px;overflow:hidden;
+    box-shadow:var(--shadow);text-align:left;padding:0;display:block;width:100%}
+  .tile.wish{border-color:var(--buy)}
+  .tile img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+  .blanktile{aspect-ratio:4/3;display:grid;place-items:center;padding:10px;text-align:center;
+    color:var(--ghost);font-size:12px;line-height:1.35;
+    background:repeating-linear-gradient(45deg,#F3F5F3,#F3F5F3 10px,#EDF0EE 10px,#EDF0EE 20px)}
+  .tile figcaption{padding:7px 9px;font-size:12.5px;line-height:1.35;color:var(--ink)}
+  .tile .cap-n{font-family:var(--num);font-size:11px;color:var(--ghost)}
+  .tile .cap-buy{display:block;color:var(--buy);font-family:var(--tag);font-size:10px;
+    letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
+
+  .pager{display:flex;align-items:center;justify-content:center;gap:14px;padding:22px 0 4px}
+  .pager span{font-family:var(--num);font-size:13px;color:var(--ink-soft)}
+  footer{padding:22px 0 8px;color:var(--ghost);font-size:12px;line-height:1.6;text-align:center}
+
+  .bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--ink);color:#fff;
+       padding:11px 14px calc(11px + env(safe-area-inset-bottom))}
+  .bar-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .tally{font-family:var(--tag);font-size:13px;letter-spacing:.1em;text-transform:uppercase;line-height:1.3;flex:1 1 100%}
+  .tally b{font-family:var(--num);letter-spacing:0;font-weight:600}
+  .tally small{display:block;font-family:var(--body);font-size:11px;letter-spacing:0;text-transform:none;color:#A9BAB6;margin-top:2px}
+  .tally small.risk{color:#FF9C9C;font-weight:600}
+  .bar .btn{background:transparent;color:#fff;border-color:#4A5A57}
+  .bar .btn.solid{background:#fff;color:var(--ink);border-color:#fff;margin-left:auto}
+
+  .bulk{position:fixed;left:0;right:0;bottom:0;z-index:31;background:var(--lake);color:#fff;
+        padding:11px 14px calc(11px + env(safe-area-inset-bottom))}
+  .bulk .lbl{color:#CDE5E3;flex:1 1 100%}
+  .bulk .btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
+  .bulk select{flex:1 1 100%;padding:10px;border-radius:2px;border:1px solid rgba(255,255,255,.5);
+    background:#fff;color:var(--ink);font-family:var(--body);font-size:15px}
+
+  .toast{position:fixed;left:14px;right:14px;bottom:calc(122px + env(safe-area-inset-bottom));z-index:40;
+    background:var(--ink);color:#fff;border-radius:3px;padding:12px 14px;display:flex;align-items:center;
+    gap:12px;box-shadow:0 8px 30px rgba(0,0,0,.3);font-size:14px}
+  .toast button{background:none;border:1px solid rgba(255,255,255,.6);color:#fff;border-radius:2px;
+    padding:6px 11px;font-family:var(--tag);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-left:auto}
+
+  .sheet{position:fixed;inset:0;z-index:50;background:rgba(22,33,31,.5);display:flex;align-items:flex-end;justify-content:center}
+  .sheet-in{background:var(--paper);width:100%;max-width:620px;max-height:88vh;overflow-y:auto;
+    border-radius:8px 8px 0 0;padding:18px 16px calc(28px + env(safe-area-inset-bottom))}
+  .sheet h2{font-family:var(--tag);font-size:18px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 4px}
+  .sheet h3{font-family:var(--tag);font-size:13px;letter-spacing:.12em;text-transform:uppercase;
+    margin:22px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--line);color:var(--ink-soft)}
+  .sheet p{font-size:13px;line-height:1.5;color:var(--ink-soft);margin:0 0 10px}
+  .sheet label{display:block;font-family:var(--tag);font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ghost);margin:0 0 4px}
+  .sheet input[type=text],.sheet textarea{width:100%;border:1px solid var(--line);border-radius:2px;
+    padding:9px 10px;font-family:var(--num);font-size:13px;background:#fff;color:var(--ink);margin-bottom:11px}
+  .sheet textarea{font-family:var(--body);font-size:15px;line-height:1.5;resize:vertical}
+  .sheet input:focus,.sheet textarea:focus{outline:none;border-color:var(--ink)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .status{font-size:13px;line-height:1.45;padding:9px 11px;border-radius:2px;background:#fff;
+    border:1px solid var(--line);margin-bottom:11px}
+  .status.ok{border-color:var(--lake);color:var(--lake)}
+  .status.no{border-color:var(--sell);color:var(--sell)}
+  .close{float:right;background:none;border:none;font-size:26px;line-height:1;color:var(--ink-soft)}
+
+  #printout{display:none}
+  @media print{
+    body{background:#fff;padding:0;font-size:11pt}
+    header,.bar,.bulk,footer,.grid,.empty,.toast,.sheet,.pager,#board{display:none !important}
+    #printout{display:block}
+    .p-group{break-after:page;page-break-after:always}
+    .p-group:last-child{break-after:auto;page-break-after:auto}
+    .p-head{font-family:var(--tag);font-size:15pt;letter-spacing:.1em;text-transform:uppercase;
+      border-bottom:2px solid #000;padding-bottom:5px;margin:0 0 10px}
+    .p-head span{float:right;font-size:11pt}
+    .p-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    .p-grid.nophoto{grid-template-columns:1fr}
+    .p-item{border:1px solid #999;padding:6px;break-inside:avoid;font-size:8.5pt;line-height:1.35}
+    .p-grid.nophoto .p-item{border:none;border-bottom:1px solid #ccc;padding:5px 0;font-size:10pt}
+    .p-item img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;margin-bottom:4px}
+    .p-item b{font-family:var(--num)}
+    .p-item .sub{color:#555}
+    .p-sign{break-after:page;page-break-after:always;height:9in;display:flex;flex-direction:column;
+      justify-content:center;align-items:center;text-align:center}
+    .p-sign h2{font-family:var(--tag);font-size:60pt;line-height:1;letter-spacing:.02em;text-transform:uppercase;margin:0 0 24px}
+    .p-sign p{font-size:13pt;margin:0 0 10px}
+    .p-sign .nums{font-family:var(--num);font-size:12pt;max-width:6in;line-height:1.7}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="head-row">
+      <div>
+        <h1>Furniture manifest</h1>
+        <div class="sub">Photograph it, say what it is, tap where it goes.</div>
+      </div>
+      <div class="head-actions">
+        <span class="save-dot" id="saveDot"></span>
+        <button class="btn ghost sm" id="refreshBtn">Refresh</button>
+        <button class="btn" id="addTop">Add photos</button>
+      </div>
+    </div>
+    <div class="findrow">
+      <input type="search" id="find" placeholder="Search descriptions, notes, numbers">
+    </div>
+    <div class="toolrow">
+      <button class="btn ghost sm" id="selectBtn">Select</button>
+      <button class="btn ghost sm" id="boardBtn">Board view</button>
+      <button class="btn ghost sm" id="addItemBtn">+ Item, no photo</button>
+    </div>
+    <div class="rail" id="rail"></div>
+  </div>
+  <div class="warn" id="warn" hidden></div>
+</header>
+
+<main class="wrap">
+  <div class="empty" id="empty" hidden>
+    <h2>No pieces logged yet</h2>
+    <p>Add a photo of the first piece — you can pick several at once and fill in details later. For something you still need to buy, add an item with no photo and drop a screenshot on it when you find one.</p>
+    <button class="btn" id="addEmpty">Add photos</button>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div id="board" hidden></div>
+  <div class="pager" id="pager" hidden></div>
+  <footer id="footnote"></footer>
+</main>
+
+<div class="bar" id="bar">
+  <div class="bar-in">
+    <div class="tally" id="tally"><span>Loading</span></div>
+    <button class="btn" id="settingsBtn">Settings</button>
+    <button class="btn" id="loadBtn">Load file</button>
+    <button class="btn" id="saveFileBtn">Save file</button>
+    <button class="btn solid" id="printBtn">Print</button>
+  </div>
+</div>
+
+<div class="bulk" id="bulk" hidden>
+  <div class="bar-in">
+    <div class="lbl" id="bulkCount">0 selected</div>
+    <select id="bulkTo"></select>
+    <button class="btn" id="bulkApply">Apply</button>
+    <button class="btn" id="bulkDelete">Delete</button>
+    <button class="btn" id="bulkDone">Done</button>
+  </div>
+</div>
+
+<div id="printout"></div>
+<input type="file" id="picker" accept="image/*" multiple hidden>
+<input type="file" id="loader" accept=".html,.json,text/html,application/json" hidden>
+
+<script>
+/* ===================== constants ===================== */
+var DEFAULT_ROOMS = [
+  "Upstairs central guest","Upstairs guest north","Guest south","Bunk room",
+  "Main level guest","Main level master","Main level living room","Garage apartment","Garage"
+];
+var KEEP = "Homewood \u2014 keep", SELL = "Homewood \u2014 sell", GIVE = "Donate", LAKE = "Lake house";
+var BUY = "To buy";
+var FROM = ["Garage","Homewood storage",BUY];
+var TO = [LAKE, KEEP, SELL, GIVE];
+var TONE = {}; TONE[LAKE]="lake"; TONE[KEEP]="hold"; TONE[SELL]="sell"; TONE[GIVE]="give";
+var SIZES = {
+  small:    {px:700,  q:0.50, kb:40},
+  standard: {px:900,  q:0.55, kb:70},
+  detailed: {px:1600, q:0.72, kb:250}
+};
+var PAGE_SIZE = 25, CHUNK_CAP = 380000, BUCKET = "photos";
+var $ = function(s){ return document.querySelector(s); };
+function esc(v){
+  return String(v == null ? "" : v).replace(/[<>&"]/g, function(c){
+    return {"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c];
+  });
+}
+
+/* ===================== device storage ===================== */
+var store = (function(){
+  var haveIDB = typeof indexedDB !== "undefined" && indexedDB !== null, dbp = null;
+  function open(){
+    return dbp || (dbp = new Promise(function(res, rej){
+      var rq = indexedDB.open("furniture-manifest", 1);
+      rq.onupgradeneeded = function(){ rq.result.createObjectStore("kv"); };
+      rq.onsuccess = function(){ res(rq.result); };
+      rq.onerror = function(){ rej(rq.error); };
+    }));
+  }
+  function tx(mode, fn){
+    return open().then(function(db){
+      return new Promise(function(res, rej){
+        var t = db.transaction("kv", mode), rq = fn(t.objectStore("kv"));
+        rq.onsuccess = function(){ res(rq.result); };
+        rq.onerror = function(){ rej(rq.error); };
+      });
+    });
+  }
+  return {
+    get: function(key){
+      if (haveIDB) return tx("readonly", function(os){ return os.get(key); })
+        .then(function(v){ return v === undefined ? null : {key:key, value:v}; });
+      return window.storage.get(key, true);
+    },
+    set: function(key, value){
+      if (haveIDB) return tx("readwrite", function(os){ return os.put(value, key); })
+        .then(function(){ return {key:key, value:value}; });
+      return window.storage.set(key, value, true);
+    }
+  };
+})();
+
+/* ===================== state ===================== */
+var items = [], seq = 0, removed = {}, rooms = DEFAULT_ROOMS.slice();
+var images = {}, chunks = {}, cfg = {url:"", key:""};
+var filter = "all", search = "", page = 0;
+var selectMode = false, boardMode = false;
+var selected = new Set(), expanded = new Set();
+var pendingPhotoFor = null, sizeChoice = "standard";
+var metaTimer = null, pulling = false, storageOK = true, dirty = 0;
+var warned = "", undoBuf = null, toastTimer = null;
+
+var grid = $("#grid");
+function touch(it){ it.ts = Date.now(); dirty++; }
+function cloudOn(){ return !!(cfg.url && cfg.key); }
+function srcFor(it){ return it.url || images[it.id] || null; }
+
+/* ===================== notices ===================== */
+function flag(txt, ok){
+  var d = $("#saveDot");
+  d.textContent = txt;
+  d.className = "save-dot" + (ok ? " on" : "");
+  if (ok) setTimeout(function(){ if (d.textContent === txt) d.textContent = ""; }, 1800);
+}
+function warn(txt){
+  if (warned === txt) return;
+  warned = txt;
+  var b = $("#warn");
+  b.innerHTML = "";
+  b.appendChild(document.createTextNode(txt));
+  var x = document.createElement("button");
+  x.textContent = "Dismiss";
+  x.onclick = function(){ b.hidden = true; warned = ""; };
+  b.appendChild(x);
+  b.hidden = false;
+}
+function toast(msg, label, action){
+  var old = document.querySelector(".toast");
+  if (old) old.remove();
+  clearTimeout(toastTimer);
+  var t = document.createElement("div");
+  t.className = "toast";
+  t.appendChild(document.createTextNode(msg));
+  if (action){
+    var b = document.createElement("button");
+    b.textContent = label;
+    b.onclick = function(){ action(); t.remove(); };
+    t.appendChild(b);
+  }
+  document.body.appendChild(t);
+  toastTimer = setTimeout(function(){ t.remove(); }, 12000);
+}
+
+/* ===================== cloud ===================== */
+function pubUrl(name){ return cfg.url + "/storage/v1/object/public/" + BUCKET + "/" + name; }
+function cloudPut(name, body, type){
+  return fetch(cfg.url + "/storage/v1/object/" + BUCKET + "/" + name, {
+    method:"POST",
+    headers:{apikey:cfg.key, Authorization:"Bearer " + cfg.key, "Content-Type":type, "x-upsert":"true"},
+    body:body
+  }).then(function(r){
+    if (!r.ok) return r.text().then(function(t){ throw new Error(r.status + " " + t.slice(0,80)); });
+    return true;
+  });
+}
+function cloudDelete(name){
+  return fetch(cfg.url + "/storage/v1/object/" + BUCKET + "/" + name, {
+    method:"DELETE",
+    headers:{apikey:cfg.key, Authorization:"Bearer " + cfg.key}
+  }).catch(function(){});
+}
+function cloudGetJSON(name){
+  return fetch(pubUrl(name) + "?t=" + Date.now(), {cache:"no-store"})
+    .then(function(r){ return r.ok ? r.json() : null; });
+}
+function dataUrlToBlob(d){
+  var parts = d.split(","), head = parts[0], b64 = parts[1];
+  var m = head.match(/:(.*?);/), type = m ? m[1] : "image/jpeg";
+  var bin = atob(b64), arr = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], {type:type});
+}
+function pushPhoto(it){
+  if (!cloudOn() || it.url || !images[it.id]) return Promise.resolve(false);
+  return cloudPut(it.id + ".jpg", dataUrlToBlob(images[it.id]), "image/jpeg").then(function(){
+    it.url = pubUrl(it.id + ".jpg");
+    it.ts = Date.now();
+    return true;
+  });
+}
+async function pushAllPhotos(){
+  var n = 0, fail = 0;
+  for (var i = 0; i < items.length; i++){
+    try { if (await pushPhoto(items[i])) n++; } catch(e){ fail++; }
+  }
+  if (n) await saveMeta(true);
+  return {n:n, fail:fail};
+}
+
+/* ===================== persistence ===================== */
+function packed(){ return {items:items, seq:seq, removed:removed, rooms:rooms}; }
+
+function merge(remote){
+  if (!remote) return false;
+  var before = JSON.stringify(items);
+  removed = Object.assign({}, remote.removed || {}, removed);
+  if (Array.isArray(remote.rooms) && remote.rooms.length &&
+      JSON.stringify(rooms) === JSON.stringify(DEFAULT_ROOMS)) rooms = remote.rooms;
+  var map = new Map(items.map(function(i){ return [i.id, i]; }));
+  (remote.items || []).forEach(function(r){
+    if (r.to === "Homewood storage") r.to = KEEP;
+    var mine = map.get(r.id);
+    if (!mine) map.set(r.id, r);
+    else if ((r.ts || 0) > (mine.ts || 0)) map.set(r.id, Object.assign({}, mine, r));
+  });
+  items = Array.from(map.values())
+    .filter(function(i){ return !removed[i.id]; })
+    .sort(function(a,b){ return (a.n||0) - (b.n||0); });
+  seq = Math.max.apply(null, [seq, remote.seq || 0].concat(items.map(function(i){ return i.n || 0; })));
+  return JSON.stringify(items) !== before;
+}
+
+function readRemote(){
+  if (!cloudOn()) return Promise.resolve(null);
+  return cloudGetJSON("manifest.json").catch(function(){ return null; });
+}
+
+async function saveMeta(now){
+  clearTimeout(metaTimer);
+  async function run(){
+    try { await store.set("fm:meta", JSON.stringify(packed())); }
+    catch(e){ storageOK = false; }
+    if (cloudOn()){
+      try{
+        merge(await readRemote());
+        await cloudPut("manifest.json", new Blob([JSON.stringify(packed())], {type:"application/json"}), "application/json");
+        dirty = 0;
+      }catch(e){
+        warn("Couldn't save to your project (" + e.message + "). The device copy is fine — tap Save file for a backup.");
+      }
+    }
+    flag("Saved", true);
+    renderTally();
+  }
+  if (now) return run();
+  metaTimer = setTimeout(run, 600);
+}
+
+function pickChunk(len){
+  var ids = Object.keys(chunks).map(Number).sort(function(a,b){ return a-b; });
+  for (var i = 0; i < ids.length; i++){
+    if (JSON.stringify(chunks[ids[i]]).length + len < CHUNK_CAP) return ids[i];
+  }
+  var next = ids.length ? Math.max.apply(null, ids) + 1 : 0;
+  chunks[next] = {};
+  return next;
+}
+async function saveChunk(c){
+  var body = JSON.stringify(chunks[c] || {});
+  try{
+    await store.set("fm:img:" + c, body);
+    var back = await store.get("fm:img:" + c);
+    if (!back || back.value.length !== body.length) throw new Error("short write");
+    return true;
+  }catch(e){
+    storageOK = false;
+    warn("Photos aren't saving on this device. Tap Save file now so you don't lose them.");
+    return false;
+  }
+}
+async function loadChunks(list){
+  var pool = list || items;
+  var need = [];
+  pool.forEach(function(i){
+    if (!srcFor(i) && i.chunk != null && need.indexOf(i.chunk) < 0) need.push(i.chunk);
+  });
+  for (var i = 0; i < need.length; i++){
+    try{
+      var r = await store.get("fm:img:" + need[i]);
+      if (r){
+        chunks[need[i]] = Object.assign(chunks[need[i]] || {}, JSON.parse(r.value));
+        Object.assign(images, chunks[need[i]]);
+      }
+    }catch(e){}
+  }
+  paintImages();
+}
+
+async function pull(loud){
+  if (pulling) return;
+  var ae = document.activeElement;
+  if (!loud && ae && (ae.tagName === "TEXTAREA" || ae.tagName === "INPUT")) return;
+  pulling = true;
+  if (loud) flag("Checking\u2026", false);
+  var changed = false;
+  try { changed = merge(await readRemote()); } catch(e){}
+  if (changed) render();
+  if (loud) flag(cloudOn() ? (changed ? "Updated" : "Up to date") : "This device only", true);
+  pulling = false;
+}
+
+async function selfTest(){
+  try{
+    var v = new Array(60000).join("x") + Date.now();
+    await store.set("fm:probe", v);
+    var b = await store.get("fm:probe");
+    if (!b || b.value !== v) throw new Error("mismatch");
+    storageOK = true;
+  }catch(e){
+    storageOK = false;
+    warn("This page isn't saving on this device — it's probably running inside the Claude app. Use the hosted copy, or tap Save file before you close it.");
+  }
+  renderTally();
+}
+
+async function load(){
+  var h = location.hash.match(/cfg=([^&]+)/);
+  if (h){
+    try{
+      var c = JSON.parse(atob(decodeURIComponent(h[1])));
+      if (c.url && c.key){ cfg = c; await store.set("fm:cfg", JSON.stringify(cfg)); }
+      history.replaceState(null, "", location.pathname + location.search);
+    }catch(e){}
+  }
+  try { var sc = await store.get("fm:cfg"); if (sc) cfg = JSON.parse(sc.value); } catch(e){}
+  try { var so = await store.get("fm:size"); if (so && SIZES[so.value]) sizeChoice = so.value; } catch(e){}
+  try { var sm = await store.get("fm:meta"); if (sm) merge(JSON.parse(sm.value)); } catch(e){}
+  fillBulk();
+  render();
+  if (cloudOn() && merge(await readRemote())) render();
+  var lost = items.filter(function(i){ return !srcFor(i) && i.chunk != null; }).length;
+  if (lost) warn(lost + " photo" + (lost > 1 ? "s" : "") + " didn't come back from storage. If you have a saved file, tap Load file to restore them.");
+  await selfTest();
+  renderFoot();
+  setInterval(function(){ if (!document.hidden && cloudOn()) pull(false); }, 20000);
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden && cloudOn()) pull(false); });
+}
+
+/* ===================== photos ===================== */
+async function shrink(file){
+  var S = SIZES[sizeChoice] || SIZES.standard;
+  var bmp;
+  try { bmp = await createImageBitmap(file, {imageOrientation:"from-image"}); }
+  catch(e){
+    bmp = await new Promise(function(res, rej){
+      var img = new Image();
+      img.onload = function(){ res(img); };
+      img.onerror = rej;
+      img.src = URL.createObjectURL(file);
+    });
+  }
+  var scale = Math.min(1, S.px / Math.max(bmp.width, bmp.height));
+  var cv = document.createElement("canvas");
+  cv.width = Math.round(bmp.width * scale);
+  cv.height = Math.round(bmp.height * scale);
+  cv.getContext("2d").drawImage(bmp, 0, 0, cv.width, cv.height);
+  if (bmp.close) bmp.close();
+  return cv.toDataURL("image/jpeg", S.q);
+}
+function newItem(where){
+  seq += 1; dirty++;
+  return {id:"i" + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    n:seq, desc:"", from:where, to:"", room:"", qty:1, w:"", d:"", h:"", notes:"", ts:Date.now()};
+}
+async function addFiles(files){
+  var list = Array.prototype.filter.call(files, function(f){ return f.type.indexOf("image/") === 0; });
+  if (!list.length) return;
+  flag("Adding " + list.length + "\u2026", false);
+  if (cloudOn()) await pull(false);
+  var touched = [], fresh = [];
+  for (var i = 0; i < list.length; i++){
+    var data;
+    try { data = await shrink(list[i]); } catch(e){ continue; }
+    var it = newItem("Garage");
+    var c = pickChunk(data.length + 40);
+    chunks[c][it.id] = data; images[it.id] = data; it.chunk = c;
+    if (touched.indexOf(c) < 0) touched.push(c);
+    items.push(it); fresh.push(it);
+    render();
+  }
+  for (var j = 0; j < touched.length; j++) await saveChunk(touched[j]);
+  if (cloudOn()){
+    flag("Uploading\u2026", false);
+    for (var k = 0; k < fresh.length; k++){
+      try { await pushPhoto(fresh[k]); }
+      catch(e){ warn("Photo upload failed (" + e.message + "). Check Settings — bucket name and upload policy."); break; }
+    }
+  }
+  await saveMeta(true);
+  render();
+  flag("Saved", true);
+}
+async function attachPhoto(id, file){
+  var it = items.filter(function(i){ return i.id === id; })[0];
+  if (!it || !file || file.type.indexOf("image/") !== 0) return;
+  flag("Adding photo\u2026", false);
+  var data;
+  try { data = await shrink(file); } catch(e){ flag("Couldn't read that photo", false); return; }
+  var c = pickChunk(data.length + 40);
+  chunks[c][id] = data; images[id] = data; it.chunk = c; it.url = "";
+  touch(it);
+  await saveChunk(c);
+  if (cloudOn()){
+    try { await pushPhoto(it); } catch(e){ warn("Photo upload failed (" + e.message + ")."); }
+  }
+  await saveMeta(true);
+  render();
+  flag("Saved", true);
+}
+
+/* ===================== derived ===================== */
+function stampFor(it){
+  if (!it.to) return null;
+  if (it.to === LAKE) return {cls:"lake", txt: it.room || "Lake house \u00b7 pick room"};
+  return {cls:TONE[it.to] || "hold", txt:it.to};
+}
+function needsSort(it){ return !it.to || (it.to === LAKE && !it.room); }
+function counts(){
+  var c = {all:items.length, todo:0, lake:0, keep:0, sell:0, give:0, buy:0};
+  items.forEach(function(it){
+    if (needsSort(it)) c.todo++;
+    if (it.to === LAKE) c.lake++;
+    if (it.to === KEEP) c.keep++;
+    if (it.to === SELL) c.sell++;
+    if (it.to === GIVE) c.give++;
+    if (it.from === BUY) c.buy++;
+  });
+  return c;
+}
+function visible(){
+  var q = search.trim().toLowerCase();
+  return items.filter(function(it){
+    if (filter === "todo" && !needsSort(it)) return false;
+    if (filter === "lake" && it.to !== LAKE) return false;
+    if (filter === "keep" && it.to !== KEEP) return false;
+    if (filter === "sell" && it.to !== SELL) return false;
+    if (filter === "give" && it.to !== GIVE) return false;
+    if (filter === "buy" && it.from !== BUY) return false;
+    if (!q) return true;
+    return (it.desc||"").toLowerCase().indexOf(q) >= 0
+        || (it.notes||"").toLowerCase().indexOf(q) >= 0
+        || (it.room||"").toLowerCase().indexOf(q) >= 0
+        || String(it.n).padStart(2,"0").indexOf(q) >= 0;
+  });
+}
+function byRoom(list){
+  var g = [];
+  rooms.forEach(function(r){
+    var l = list.filter(function(i){ return i.to === LAKE && i.room === r; });
+    if (l.length) g.push(["Lake house \u2014 " + r, l]);
+  });
+  var nr = list.filter(function(i){ return i.to === LAKE && !i.room; });
+  if (nr.length) g.push(["Lake house \u2014 room not chosen", nr]);
+  [[KEEP,"Stays in Homewood storage"],[SELL,"To sell"],[GIVE,"To donate"]].forEach(function(pair){
+    var l = list.filter(function(i){ return i.to === pair[0]; });
+    if (l.length) g.push([pair[1], l]);
+  });
+  var none = list.filter(function(i){ return !i.to; });
+  if (none.length) g.push(["Not sorted yet", none]);
+  return g;
+}
+function grouped(){ return byRoom(items); }
+function lineFor(i){
+  var dims = (i.w || i.d || i.h) ? ((i.w||"?") + "\u00d7" + (i.d||"?") + "\u00d7" + (i.h||"?") + " in") : "";
+  return [i.from ? (i.from === BUY ? "to buy" : "from " + i.from) : "", dims,
+          Number(i.qty) > 1 ? "qty " + i.qty : "", i.notes || ""].filter(Boolean).join(" \u00b7 ");
+}
+function usage(){
+  var bytes = 0, withPhoto = 0;
+  items.forEach(function(it){
+    var d = images[it.id];
+    if (d){ bytes += Math.round(d.length * 0.75); withPhoto++; }
+  });
+  return {bytes:bytes, withPhoto:withPhoto, per: withPhoto ? bytes/withPhoto : 0,
+          mb: bytes/1048576, pct: (bytes/1073741824)*100};
+}
+
+/* ===================== render ===================== */
+function renderRail(){
+  var c = counts();
+  var defs = [["all","Everything",c.all],["todo","Needs sorting",c.todo],["lake","Lake house",c.lake],
+              ["keep",KEEP,c.keep],["sell",SELL,c.sell],["give",GIVE,c.give],["buy","To buy",c.buy]];
+  $("#rail").innerHTML = defs.map(function(d){
+    return '<button data-f="' + d[0] + '" aria-pressed="' + (filter===d[0]) + '">' + d[1] +
+           '<span class="c">' + d[2] + '</span></button>';
+  }).join("");
+}
+function renderTally(){
+  var c = counts(), t = $("#tally");
+  if (!c.all){ t.innerHTML = "<span>Nothing logged yet</span>"; return; }
+  var line = "<small>" + c.lake + " lake house \u00b7 " + c.keep + " keep \u00b7 " + c.sell +
+             " sell \u00b7 " + c.give + " donate" + (c.buy ? " \u00b7 " + c.buy + " to buy" : "") + "</small>";
+  var risk = (!cloudOn() && !storageOK && dirty)
+    ? '<small class="risk">' + dirty + " change" + (dirty>1?"s":"") + " not in a file yet — tap Save file</small>" : "";
+  t.innerHTML = (c.todo ? "<b>" + c.todo + "</b> of <b>" + c.all + "</b> still to sort"
+                        : "All <b>" + c.all + "</b> sorted") + line + risk;
+}
+function renderFoot(){
+  $("#footnote").textContent = cloudOn()
+    ? "Synced to your Supabase project — both phones see the same list."
+    : "Saving on this device only. Open Settings to connect Supabase and share with a second phone.";
+}
+
+function card(it){
+  var el = document.createElement("div");
+  var wish = it.from === BUY;
+  el.className = "card" + (selected.has(it.id) ? " picked" : "") + (wish ? " wish" : "");
+  el.dataset.id = it.id;
+  var st = stampFor(it), src = srcFor(it), open = expanded.has(it.id);
+
+  el.innerHTML =
+    '<div class="shot' + (src ? '' : ' blank') + '">' +
+      (src ? '<img src="' + src + '" alt="" loading="lazy">'
+           : '<button class="addphoto" data-addphoto="1">Tap to add a photo</button>') +
+      '<div class="tagno">' + String(it.n).padStart(2,"0") + '</div>' +
+      (Number(it.qty) > 1 ? '<div class="qtybadge">\u00d7' + it.qty + '</div>' : '') +
+      (selectMode
+        ? '<button class="tick ' + (selected.has(it.id) ? "on" : "") + '" data-pick="1">' +
+            (selected.has(it.id) ? "\u2713" : "") + '</button>'
+        : '<button class="kill" title="Remove">\u00d7</button>') +
+      (st ? '<div class="stamp ' + st.cls + '">' + esc(st.txt) + '</div>' : '') +
+      (wish ? '<div class="buytag">To buy</div>' : '') +
+    '</div>' +
+    '<div class="body">' +
+      '<textarea class="desc" rows="1" placeholder="What is it? e.g. walnut dresser, 6 drawers">' + esc(it.desc) + '</textarea>' +
+      '<div class="field"><span class="lbl">Now in</span><div class="opts">' +
+        FROM.map(function(f){
+          return '<button class="opt ' + (f === BUY ? "buy" : "") + '" data-from="' + esc(f) +
+                 '" aria-pressed="' + (it.from===f) + '">' + esc(f) + '</button>';
+        }).join("") +
+      '</div></div>' +
+      '<div class="field"><span class="lbl">Goes to</span><div class="opts">' +
+        TO.map(function(t){
+          return '<button class="opt ' + TONE[t] + '" data-to="' + esc(t) + '" aria-pressed="' + (it.to===t) + '">' + esc(t) + '</button>';
+        }).join("") +
+      '</div></div>' +
+      '<div class="field rooms ' + (it.to === LAKE ? "show" : "") + '">' +
+        '<span class="lbl ' + (it.to === LAKE && !it.room ? "needs" : "") + '">Room' +
+          (it.to === LAKE && !it.room ? " — still needed" : "") + '</span>' +
+        '<div class="opts">' + rooms.map(function(r){
+          return '<button class="opt" data-room="' + esc(r) + '" aria-pressed="' + (it.room===r) + '">' + esc(r) + '</button>';
+        }).join("") + '</div>' +
+      '</div>' +
+      '<button class="more" data-more="1">' + (open ? "\u2212" : "+") + ' Size, count, notes</button>' +
+      '<div class="extra ' + (open ? "show" : "") + '">' +
+        '<div class="field"><span class="lbl">Size in inches \u00b7 W \u00d7 D \u00d7 H</span><div class="dims">' +
+          '<input type="number" inputmode="decimal" data-dim="w" value="' + esc(it.w) + '" placeholder="W"><span>\u00d7</span>' +
+          '<input type="number" inputmode="decimal" data-dim="d" value="' + esc(it.d) + '" placeholder="D"><span>\u00d7</span>' +
+          '<input type="number" inputmode="decimal" data-dim="h" value="' + esc(it.h) + '" placeholder="H">' +
+        '</div></div>' +
+        '<div class="field"><span class="lbl">How many</span><div class="dims">' +
+          '<input type="number" inputmode="numeric" min="1" data-qty="1" value="' + (it.qty||1) + '">' +
+        '</div></div>' +
+        '<div class="field"><span class="lbl">Notes for the crew</span>' +
+          '<textarea class="notes" rows="2" placeholder="Fragile \u00b7 disassemble \u00b7 two people">' + esc(it.notes) + '</textarea>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  function grow(t){ t.style.height = "auto"; t.style.height = t.scrollHeight + "px"; }
+  var ta = el.querySelector(".desc");
+  requestAnimationFrame(function(){ grow(ta); });
+  ta.addEventListener("input", function(){ it.desc = ta.value; touch(it); grow(ta); saveMeta(); });
+
+  var nt = el.querySelector(".notes");
+  if (nt){
+    requestAnimationFrame(function(){ grow(nt); });
+    nt.addEventListener("input", function(){ it.notes = nt.value; touch(it); grow(nt); saveMeta(); });
+  }
+  Array.prototype.forEach.call(el.querySelectorAll("[data-dim]"), function(inp){
+    inp.addEventListener("change", function(){ it[inp.dataset.dim] = inp.value; touch(it); saveMeta(); });
+  });
+  var q = el.querySelector("[data-qty]");
+  if (q) q.addEventListener("change", function(){
+    it.qty = Math.max(1, parseInt(q.value || "1", 10));
+    touch(it); refreshCard(it); saveMeta();
+  });
+  return el;
+}
+
+function pageSlice(){
+  var all = visible();
+  var pages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
+  if (page >= pages) page = pages - 1;
+  if (page < 0) page = 0;
+  return {all:all, pages:pages, shown: all.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)};
+}
+function renderPager(all, pages){
+  var p = $("#pager");
+  if (all.length <= PAGE_SIZE){ p.hidden = true; return; }
+  p.hidden = false;
+  var first = page * PAGE_SIZE + 1;
+  var last = Math.min(all.length, first + PAGE_SIZE - 1);
+  p.innerHTML =
+    '<button class="btn ghost sm" data-pg="prev"' + (page === 0 ? " disabled" : "") + '>\u2039 Back</button>' +
+    '<span>' + first + '\u2013' + last + ' of ' + all.length + '</span>' +
+    '<button class="btn ghost sm" data-pg="next"' + (page >= pages - 1 ? " disabled" : "") + '>Next \u203a</button>';
+}
+function renderBoard(){
+  var list = visible();
+  $("#board").innerHTML = byRoom(list).map(function(g){
+    return '<div class="board-group"><div class="board-head">' + esc(g[0]) +
+      '<span>' + g[1].length + '</span></div><div class="board">' +
+      g[1].map(function(i){
+        return '<button class="tile' + (i.from === BUY ? " wish" : "") + '" data-open="' + i.id + '">' +
+          (srcFor(i) ? '<img src="' + srcFor(i) + '" alt="" loading="lazy">'
+                     : '<div class="blanktile">' + esc(i.desc || "no photo yet") + '</div>') +
+          '<figcaption><span class="cap-n">' + String(i.n).padStart(2,"0") + '</span> ' +
+            esc(i.desc || "\u2014") +
+            (i.from === BUY ? '<span class="cap-buy">To buy</span>' : '') +
+          '</figcaption></button>';
+      }).join("") + '</div></div>';
+  }).join("");
+  loadChunks(list);
+}
+function render(){
+  $("#empty").hidden = items.length > 0;
+  renderRail(); renderTally();
+  if (boardMode){
+    $("#board").hidden = false;
+    $("#grid").hidden = true;
+    $("#pager").hidden = true;
+    $("#bulk").hidden = true;
+    $("#bar").hidden = false;
+    renderBoard();
+    return;
+  }
+  $("#board").hidden = true;
+  $("#grid").hidden = false;
+  var sl = pageSlice();
+  grid.innerHTML = "";
+  sl.shown.forEach(function(it){ grid.appendChild(card(it)); });
+  renderPager(sl.all, sl.pages);
+  loadChunks(sl.shown);
+  $("#bulk").hidden = !selectMode;
+  $("#bar").hidden = selectMode;
+  $("#bulkCount").textContent = selected.size + " selected";
+}
+function paintImages(){
+  Array.prototype.forEach.call(document.querySelectorAll(".tile[data-open]"), function(t){
+    var it = items.filter(function(i){ return i.id === t.dataset.open; })[0];
+    var blank = t.querySelector(".blanktile");
+    if (it && srcFor(it) && blank && images[it.id]){
+      var img = new Image();
+      img.src = srcFor(it); img.alt = "";
+      blank.replaceWith(img);
+    }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".card"), function(el){
+    var it = items.filter(function(i){ return i.id === el.dataset.id; })[0];
+    if (it && images[it.id] && !el.querySelector(".shot img")){
+      var shot = el.querySelector(".shot");
+      var ph = shot.querySelector(".addphoto");
+      if (ph) ph.remove();
+      shot.classList.remove("blank");
+      var img = new Image();
+      img.src = srcFor(it); img.alt = "";
+      shot.prepend(img);
+    }
+  });
+}
+function refreshCard(it){
+  Array.prototype.forEach.call(document.querySelectorAll('.card[data-id="' + it.id + '"]'), function(el){
+    el.replaceWith(card(it));
+  });
+  renderRail(); renderTally();
+}
+
+/* ===================== interaction ===================== */
+function cardClick(e){
+  var el = e.target.closest(".card"); if (!el) return;
+  var it = items.filter(function(i){ return i.id === el.dataset.id; })[0];
+  if (!it) return;
+
+  if (e.target.closest("[data-addphoto]")){ pendingPhotoFor = it.id; $("#picker").click(); return; }
+  if (e.target.closest("[data-pick]")){
+    selected.has(it.id) ? selected.delete(it.id) : selected.add(it.id);
+    refreshCard(it);
+    $("#bulkCount").textContent = selected.size + " selected";
+    return;
+  }
+  if (e.target.closest(".kill")){ removeItems([it]); return; }
+  if (e.target.closest("[data-more]")){
+    expanded.has(it.id) ? expanded.delete(it.id) : expanded.add(it.id);
+    refreshCard(it);
+    return;
+  }
+  var f = e.target.closest("[data-from]");
+  if (f){ it.from = f.dataset.from; touch(it); refreshCard(it); saveMeta(); return; }
+  var t = e.target.closest("[data-to]");
+  if (t){
+    it.to = (it.to === t.dataset.to) ? "" : t.dataset.to;
+    if (it.to !== LAKE) it.room = "";
+    touch(it); refreshCard(it); saveMeta();
+    return;
+  }
+  var r = e.target.closest("[data-room]");
+  if (r){
+    it.room = (it.room === r.dataset.room) ? "" : r.dataset.room;
+    touch(it); refreshCard(it); saveMeta();
+    if (filter === "todo" && it.room) setTimeout(render, 350);
+  }
+}
+grid.addEventListener("click", cardClick);
+
+function removeItems(list){
+  var backup = {items: list.map(function(i){ return Object.assign({}, i); }), images:{}};
+  list.forEach(function(i){ if (images[i.id]) backup.images[i.id] = images[i.id]; });
+  list.forEach(function(it){
+    removed[it.id] = Date.now();
+    if (it.chunk != null && chunks[it.chunk]){ delete chunks[it.chunk][it.id]; saveChunk(it.chunk); }
+    delete images[it.id];
+    if (cloudOn() && it.url){ cloudDelete(it.id + ".jpg"); it.url = ""; }
+  });
+  var ids = list.map(function(i){ return i.id; });
+  items = items.filter(function(i){ return ids.indexOf(i.id) < 0; });
+  undoBuf = backup;
+  render(); saveMeta();
+  toast(list.length === 1 ? "Piece removed" : list.length + " pieces removed", "Undo", undoRemove);
+}
+function undoRemove(){
+  if (!undoBuf) return;
+  undoBuf.items.forEach(function(it){
+    delete removed[it.id];
+    it.ts = Date.now();
+    items.push(it);
+    var d = undoBuf.images[it.id];
+    if (d){
+      var c = pickChunk(d.length + 40);
+      chunks[c][it.id] = d; images[it.id] = d; it.chunk = c;
+      saveChunk(c);
+      if (cloudOn()){ it.url = ""; pushPhoto(it).catch(function(){}); }
+    }
+  });
+  items.sort(function(a,b){ return (a.n||0) - (b.n||0); });
+  undoBuf = null;
+  render(); saveMeta();
+}
+
+$("#rail").addEventListener("click", function(e){
+  var b = e.target.closest("button[data-f]"); if (!b) return;
+  filter = b.dataset.f; page = 0; render();
+});
+$("#find").addEventListener("input", function(e){ search = e.target.value; page = 0; render(); });
+$("#pager").addEventListener("click", function(e){
+  var b = e.target.closest("[data-pg]"); if (!b || b.disabled) return;
+  page += (b.dataset.pg === "next" ? 1 : -1);
+  render();
+  window.scrollTo({top:0, behavior:"smooth"});
+});
+$("#board").addEventListener("click", function(e){
+  var t = e.target.closest("[data-open]"); if (!t) return;
+  var it = items.filter(function(i){ return i.id === t.dataset.open; })[0];
+  if (!it) return;
+  var sheet = openSheet('<h2>Piece ' + String(it.n).padStart(2,"0") + '</h2><div id="oneCard"></div>',
+    function(s){ s.addEventListener("click", cardClick); });
+  sheet.querySelector("#oneCard").appendChild(card(it));
+  sheet.addEventListener("sheetclosed", function(){ render(); });
+});
+$("#boardBtn").addEventListener("click", function(){
+  boardMode = !boardMode;
+  $("#boardBtn").textContent = boardMode ? "Card view" : "Board view";
+  if (boardMode && selectMode){
+    selectMode = false; selected.clear();
+    $("#selectBtn").textContent = "Select";
+  }
+  render();
+  window.scrollTo({top:0, behavior:"smooth"});
+});
+$("#addItemBtn").addEventListener("click", async function(){
+  var it = newItem(BUY);
+  items.push(it);
+  if (boardMode){ boardMode = false; $("#boardBtn").textContent = "Board view"; }
+  filter = "buy"; search = ""; $("#find").value = "";
+  page = Math.floor((visible().length - 1) / PAGE_SIZE);
+  render();
+  await saveMeta(true);
+  var d = document.querySelector('.card[data-id="' + it.id + '"] .desc');
+  if (d){ d.scrollIntoView({block:"center", behavior:"smooth"}); d.focus(); }
+});
+$("#selectBtn").addEventListener("click", function(){
+  selectMode = !selectMode;
+  selected.clear();
+  $("#selectBtn").textContent = selectMode ? "Cancel" : "Select";
+  if (selectMode && boardMode){ boardMode = false; $("#boardBtn").textContent = "Board view"; }
+  render();
+});
+$("#bulkDone").addEventListener("click", function(){
+  selectMode = false; selected.clear();
+  $("#selectBtn").textContent = "Select";
+  render();
+});
+$("#bulkDelete").addEventListener("click", function(){
+  var list = items.filter(function(i){ return selected.has(i.id); });
+  if (!list.length) return;
+  if (!confirm("Remove " + list.length + " pieces?")) return;
+  selected.clear();
+  removeItems(list);
+});
+$("#bulkApply").addEventListener("click", function(){
+  var v = $("#bulkTo").value;
+  var list = items.filter(function(i){ return selected.has(i.id); });
+  if (!v || !list.length) return;
+  list.forEach(function(it){
+    if (v.indexOf("room:") === 0){ it.to = LAKE; it.room = v.slice(5); }
+    else if (v === "buy"){ it.from = BUY; }
+    else { it.to = v; it.room = ""; }
+    touch(it);
+  });
+  selected.clear();
+  render(); saveMeta();
+  toast(list.length + " pieces updated");
+});
+function fillBulk(){
+  $("#bulkTo").innerHTML = '<option value="">Send selected to\u2026</option>'
+    + rooms.map(function(r){ return '<option value="room:' + esc(r) + '">Lake house \u2014 ' + esc(r) + '</option>'; }).join("")
+    + [KEEP, SELL, GIVE].map(function(d){ return '<option value="' + esc(d) + '">' + esc(d) + '</option>'; }).join("")
+    + '<option value="buy">Mark as To buy</option>';
+}
+
+$("#picker").addEventListener("change", function(e){
+  var files = e.target.files;
+  var target = pendingPhotoFor;
+  pendingPhotoFor = null;
+  var list = Array.prototype.slice.call(files);
+  e.target.value = "";
+  if (target) attachPhoto(target, list[0]);
+  else addFiles(list);
+});
+$("#addTop").addEventListener("click", function(){ $("#picker").click(); });
+$("#addEmpty").addEventListener("click", function(){ $("#picker").click(); });
+$("#refreshBtn").addEventListener("click", function(){ pull(true); });
+
+/* ===================== printing ===================== */
+function printSheet(withPhotos){
+  $("#printout").innerHTML = grouped().map(function(g){
+    var head = g[0], list = g[1];
+    return '<div class="p-group"><div class="p-head">' + esc(head) +
+      '<span>' + list.length + ' piece' + (list.length>1?"s":"") + '</span></div>' +
+      '<div class="p-grid ' + (withPhotos ? "" : "nophoto") + '">' +
+      list.map(function(i){
+        return '<div class="p-item">' +
+          (withPhotos && srcFor(i) ? '<img src="' + srcFor(i) + '">' : '') +
+          '<b>' + String(i.n).padStart(2,"0") + '</b> ' + esc(i.desc || "\u2014") +
+          '<div class="sub">' + esc(lineFor(i)) + '</div></div>';
+      }).join("") + '</div></div>';
+  }).join("");
+  window.print();
+}
+function printSigns(){
+  var groups = [];
+  rooms.forEach(function(r){
+    var l = items.filter(function(i){ return i.to === LAKE && i.room === r; });
+    if (l.length) groups.push([r, l]);
+  });
+  [[KEEP,"Homewood keep"],[SELL,"Sell"],[GIVE,"Donate"]].forEach(function(pair){
+    var l = items.filter(function(i){ return i.to === pair[0]; });
+    if (l.length) groups.push([pair[1], l]);
+  });
+  $("#printout").innerHTML = groups.map(function(g){
+    return '<div class="p-sign"><h2>' + esc(g[0]) + '</h2><p>' + g[1].length +
+      ' piece' + (g[1].length>1?"s":"") + '</p><div class="nums">' +
+      g[1].map(function(i){ return String(i.n).padStart(2,"0"); }).join(" \u00b7 ") + '</div></div>';
+  }).join("");
+  window.print();
+}
+
+/* ===================== files ===================== */
+function buildFile(){
+  var withImg = items.filter(function(i){ return images[i.id]; });
+  var imgMap = {};
+  withImg.forEach(function(i){ imgMap[i.id] = images[i.id]; });
+  var payload = JSON.stringify({kind:"furniture-manifest", saved:new Date().toISOString(),
+    items:items, seq:seq, removed:removed, rooms:rooms, images:imgMap});
+  var sheet = grouped().map(function(g){
+    return '<section><h2>' + esc(g[0]) + ' <span>' + g[1].length + '</span></h2><div class="g">' +
+      g[1].map(function(i){
+        return '<figure>' +
+          (srcFor(i) ? '<img src="' + srcFor(i) + '">' : '<div class="noimg">no photo</div>') +
+          '<figcaption><b>' + String(i.n).padStart(2,"0") + '</b> ' + esc(i.desc || "\u2014") +
+          '<em>' + esc(lineFor(i)) + '</em></figcaption></figure>';
+      }).join("") + '</div></section>';
+  }).join("");
+
+  return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+'<meta name="viewport" content="width=device-width,initial-scale=1"><title>Furniture manifest</title><style>' +
+' body{font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;margin:0;padding:20px;color:#16211F}' +
+' h1{font-size:20px;letter-spacing:.06em;text-transform:uppercase;margin:0 0 4px}' +
+' .meta{color:#6B7A76;font-size:12px;margin-bottom:18px}' +
+' button{font:inherit;padding:10px 16px;border:1px solid #16211F;background:#16211F;color:#fff;border-radius:2px;margin-bottom:20px}' +
+' section{break-inside:avoid;margin:0 0 20px}' +
+' h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;border-bottom:2px solid #16211F;padding-bottom:5px;margin:0 0 10px}' +
+' h2 span{float:right;color:#6B7A76}' +
+' .g{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}' +
+' figure{margin:0;border:1px solid #C9D2CE;padding:6px;break-inside:avoid}' +
+' figure img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;margin-bottom:5px}' +
+' .noimg{aspect-ratio:4/3;background:#EEF1EE;display:grid;place-items:center;color:#8A9793;font-size:11px;margin-bottom:5px}' +
+' figcaption{font-size:12px;line-height:1.35} figcaption b{font-family:ui-monospace,Menlo,monospace}' +
+' figcaption em{display:block;color:#6B7A76;font-style:normal;font-size:11px;margin-top:2px}' +
+' @media print{button,.meta{display:none} body{padding:0}}' +
+'</style></head><body><h1>Furniture manifest</h1><div class="meta">' +
+items.length + ' pieces \u00b7 saved ' + new Date().toLocaleString() + '</div>' +
+'<button onclick="window.print()">Print / save as PDF</button>' + sheet +
+'<script id="fm-data" type="application/json">' + payload.replace(/<\//g, "<\\/") + '<\/script>' +
+'</body></html>';
+}
+$("#saveFileBtn").addEventListener("click", function(){
+  var html = buildFile();
+  try{
+    var url = URL.createObjectURL(new Blob([html], {type:"text/html"}));
+    var a = document.createElement("a");
+    a.href = url; a.download = "furniture-manifest.html";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+    dirty = 0; renderTally(); flag("File saved", true);
+  }catch(e){
+    var w = window.open("", "_blank");
+    if (w){ w.document.write(html); w.document.close(); }
+    else flag("Blocked here — try a computer", false);
+  }
+});
+$("#loadBtn").addEventListener("click", function(){ $("#loader").click(); });
+$("#loader").addEventListener("change", async function(e){
+  var f = e.target.files[0];
+  e.target.value = "";
+  if (!f) return;
+  flag("Reading file\u2026", false);
+  try{
+    var txt = await f.text();
+    var m = txt.match(/<script id="fm-data" type="application\/json">([\s\S]*?)<\/script>/);
+    var data = JSON.parse(m ? m[1].replace(/<\\\//g, "</") : txt);
+    if (!data.items) throw new Error("no items");
+    merge(data);
+    var touched = [];
+    for (var id in (data.images || {})){
+      if (images[id] || removed[id]) continue;
+      var d = data.images[id];
+      var c = pickChunk(d.length + 40);
+      chunks[c][id] = d; images[id] = d;
+      if (touched.indexOf(c) < 0) touched.push(c);
+      var it = items.filter(function(x){ return x.id === id; })[0];
+      if (it) it.chunk = c;
+    }
+    for (var i = 0; i < touched.length; i++) await saveChunk(touched[i]);
+    if (cloudOn()) await pushAllPhotos();
+    await saveMeta(true);
+    render();
+    flag("Loaded " + data.items.length + " pieces", true);
+  }catch(err){ flag("Couldn't read that file", false); }
+});
+
+/* ===================== sheets ===================== */
+function openSheet(html, wire){
+  var s = document.createElement("div");
+  s.className = "sheet";
+  s.innerHTML = '<div class="sheet-in"><button class="close">\u00d7</button>' + html + '</div>';
+  s.addEventListener("click", function(e){
+    if (e.target === s || e.target.classList.contains("close")){
+      s.dispatchEvent(new Event("sheetclosed"));
+      s.remove();
+    }
+  });
+  document.body.appendChild(s);
+  if (wire) wire(s);
+  return s;
+}
+
+$("#printBtn").addEventListener("click", function(){
+  openSheet(
+    '<h2>Print</h2>' +
+    '<p>Each destination and room starts on its own page, so every crew gets one sheet.</p>' +
+    '<h3>Manifest</h3>' +
+    '<div class="row"><button class="btn" data-p="photos">With photos</button>' +
+    '<button class="btn ghost" data-p="text">Text only</button></div>' +
+    '<h3>Room signs</h3>' +
+    '<p>One full page per room to tape on the doors at the lake house, listing the piece numbers that belong there.</p>' +
+    '<div class="row"><button class="btn ghost" data-p="signs">Print room signs</button></div>',
+    function(s){
+      Array.prototype.forEach.call(s.querySelectorAll("[data-p]"), function(b){
+        b.addEventListener("click", function(){
+          var k = b.dataset.p;
+          s.remove();
+          setTimeout(function(){ k === "signs" ? printSigns() : printSheet(k === "photos"); }, 150);
+        });
+      });
+    });
+});
+
+$("#settingsBtn").addEventListener("click", function(){
+  openSheet(
+    '<h2>Settings</h2>' +
+    '<h3>Share with a second phone</h3>' +
+    '<p>Paste the two values from your Supabase project (Project Settings → API). Photos and the list then live in your project instead of only on this phone.</p>' +
+    '<label>Project URL</label>' +
+    '<input type="text" id="cfgUrl" placeholder="https://abcdefgh.supabase.co" value="' + esc(cfg.url) + '">' +
+    '<label>Anon public key</label>' +
+    '<input type="text" id="cfgKey" placeholder="eyJhbGciOi..." value="' + esc(cfg.key) + '">' +
+    '<div class="row"><button class="btn" id="cfgSave">Connect</button>' +
+    '<button class="btn ghost" id="cfgLink">Copy setup link</button>' +
+    '<button class="btn ghost" id="cfgOff">Disconnect</button></div>' +
+    '<div class="status" id="cfgStatus">' +
+      (cloudOn() ? "Connected. This device syncs to your project." : "Not connected — saving on this device only.") +
+    '</div>' +
+    '<div class="row"><button class="btn ghost" id="cfgPush">Upload this phone\u2019s photos to the project</button></div>' +
+    '<h3>Photo size and space used</h3>' +
+    '<div class="status" id="useOut"></div>' +
+    '<p>Applies to photos added from now on.</p>' +
+    '<div class="row">' +
+      '<button class="btn ghost" data-size="small">Small</button>' +
+      '<button class="btn ghost" data-size="standard">Standard</button>' +
+      '<button class="btn ghost" data-size="detailed">Detailed</button>' +
+    '</div>' +
+    '<h3>Rooms at the lake house</h3>' +
+    '<p>One per line. Rename or add as many as you like — this list travels to the other phone.</p>' +
+    '<textarea id="roomList" rows="10">' + esc(rooms.join("\n")) + '</textarea>' +
+    '<div class="row"><button class="btn" id="roomSave">Save rooms</button></div>' +
+    '<h3>Diagnostics</h3>' +
+    '<div class="row"><button class="btn ghost" id="diagBtn">Test this device</button></div>' +
+    '<div id="diagOut"></div>',
+    function(s){
+      var st = s.querySelector("#cfgStatus");
+
+      s.querySelector("#cfgSave").addEventListener("click", async function(){
+        var url = s.querySelector("#cfgUrl").value.trim().replace(/\/+$/, "");
+        var key = s.querySelector("#cfgKey").value.trim();
+        if (!url || !key){ st.className = "status no"; st.textContent = "Both values are needed."; return; }
+        st.className = "status"; st.textContent = "Checking\u2026";
+        var prev = cfg;
+        cfg = {url:url, key:key};
+        try{
+          await cloudPut("manifest.json", new Blob([JSON.stringify(packed())], {type:"application/json"}), "application/json");
+          await store.set("fm:cfg", JSON.stringify(cfg));
+          st.className = "status ok";
+          st.textContent = "Connected. Now tap the upload button below to move this phone\u2019s photos across.";
+          renderFoot();
+        }catch(e){
+          cfg = prev;
+          st.className = "status no";
+          st.textContent = "Couldn\u2019t reach it: " + e.message + " — check the bucket is named \u201cphotos\u201d, is public, and that the upload policy is in place.";
+        }
+      });
+      s.querySelector("#cfgOff").addEventListener("click", async function(){
+        cfg = {url:"", key:""};
+        await store.set("fm:cfg", JSON.stringify(cfg));
+        st.className = "status";
+        st.textContent = "Disconnected — saving on this device only.";
+        renderFoot();
+      });
+      s.querySelector("#cfgLink").addEventListener("click", async function(){
+        if (!cloudOn()){ st.className = "status no"; st.textContent = "Connect first."; return; }
+        var link = location.origin + location.pathname + "#cfg=" + encodeURIComponent(btoa(JSON.stringify(cfg)));
+        try{
+          await navigator.clipboard.writeText(link);
+          st.className = "status ok";
+          st.textContent = "Setup link copied — send it to the other phone and it sets itself up.";
+        }catch(e){ st.className = "status"; st.textContent = link; }
+      });
+      s.querySelector("#cfgPush").addEventListener("click", async function(){
+        if (!cloudOn()){ st.className = "status no"; st.textContent = "Connect first."; return; }
+        st.className = "status"; st.textContent = "Uploading\u2026";
+        var r = await pushAllPhotos();
+        st.className = r.fail ? "status no" : "status ok";
+        st.textContent = "Uploaded " + r.n + " photo" + (r.n === 1 ? "" : "s") +
+          (r.fail ? ", " + r.fail + " failed." : ". All set.");
+      });
+
+      function paintUse(){
+        var u = usage(), el = s.querySelector("#useOut");
+        var perKB = u.per ? Math.round(u.per / 1024) : SIZES[sizeChoice].kb;
+        var capacity = Math.floor(1073741824 / Math.max(u.per, SIZES[sizeChoice].kb * 1024));
+        el.className = u.pct > 70 ? "status no" : "status ok";
+        el.innerHTML = "<b>" + u.withPhoto + " photo" + (u.withPhoto === 1 ? "" : "s") + " \u00b7 " +
+          (u.mb < 1 ? Math.round(u.bytes/1024) + " KB" : u.mb.toFixed(1) + " MB") + "</b><br>" +
+          "About " + perKB + "KB each \u2014 " + (u.pct < 0.1 ? "well under 1%" : u.pct.toFixed(1) + "%") +
+          " of the free 1 GB, which holds roughly " + capacity.toLocaleString() + " photos.";
+      }
+      function markSize(){
+        Array.prototype.forEach.call(s.querySelectorAll("[data-size]"), function(b){
+          b.className = "btn" + (b.dataset.size === sizeChoice ? "" : " ghost");
+        });
+      }
+      paintUse(); markSize();
+      Array.prototype.forEach.call(s.querySelectorAll("[data-size]"), function(b){
+        b.addEventListener("click", async function(){
+          sizeChoice = b.dataset.size;
+          await store.set("fm:size", sizeChoice);
+          markSize(); paintUse();
+        });
+      });
+
+      s.querySelector("#roomSave").addEventListener("click", function(){
+        var list = s.querySelector("#roomList").value.split("\n")
+          .map(function(x){ return x.trim(); }).filter(Boolean);
+        if (!list.length) return;
+        rooms = list;
+        fillBulk(); render(); saveMeta(true);
+        var b = s.querySelector("#roomSave");
+        b.textContent = "Saved";
+        setTimeout(function(){ b.textContent = "Save rooms"; }, 1500);
+      });
+
+      s.querySelector("#diagBtn").addEventListener("click", async function(){
+        var out = s.querySelector("#diagOut");
+        var probes = [
+          ["Saving on this device", async function(){
+            var v = new Array(50000).join("x") + Date.now();
+            await store.set("fm:probe2", v);
+            var b = await store.get("fm:probe2");
+            if (!b || b.value !== v) throw new Error("wrote it, got nothing back");
+            return "works";
+          }],
+          ["Reaching the internet", async function(){
+            var r = await fetch("https://api.github.com/zen", {cache:"no-store"});
+            return "replied: " + (await r.text()).slice(0,28);
+          }],
+          ["Reaching your project", async function(){
+            if (!cloudOn()) throw new Error("not connected yet");
+            var r = await fetch(pubUrl("manifest.json") + "?t=" + Date.now(), {cache:"no-store"});
+            return r.ok ? "manifest found" : "reached it, status " + r.status;
+          }]
+        ];
+        out.innerHTML = "";
+        for (var i = 0; i < probes.length; i++){
+          var d = document.createElement("div");
+          d.className = "status";
+          d.textContent = probes[i][0] + ": checking\u2026";
+          out.appendChild(d);
+          try{
+            var note = await probes[i][1]();
+            d.className = "status ok";
+            d.textContent = "\u2713 " + probes[i][0] + " \u2014 " + note;
+          }catch(e){
+            d.className = "status no";
+            d.textContent = "\u2715 " + probes[i][0] + " \u2014 " + String(e.message || e).slice(0,70);
+          }
+        }
+      });
+    });
+});
+
+load();
+</script>
+</body>
+</html>
