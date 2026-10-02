@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Manifest">
-<title>Furniture manifest</title>
+<meta name="apple-mobile-web-app-title" content="MoveIT">
+<title>MoveIT Manifest</title>
 <style>
   :root{
     --ink:#16211F; --ink-soft:#4C5A57; --paper:#EEF1EE; --card:#FFFFFF; --line:#D2D9D5;
@@ -17,9 +17,11 @@
     --num:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   }
   *{box-sizing:border-box}
+  /* Author display rules outrank the UA rule for [hidden], so state it explicitly. */
+  [hidden]{display:none !important}
   html,body{margin:0;padding:0}
   body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;
-       -webkit-font-smoothing:antialiased;padding-bottom:150px}
+       -webkit-font-smoothing:antialiased;padding-bottom:200px}
   .wrap{max-width:1180px;margin:0 auto;padding:0 14px}
 
   header{position:sticky;top:0;z-index:20;background:rgba(238,241,238,.94);
@@ -28,6 +30,10 @@
   .head-row{display:flex;align-items:flex-end;gap:12px;padding:13px 0 9px}
   h1{font-family:var(--tag);font-size:25px;letter-spacing:.06em;text-transform:uppercase;margin:0;line-height:1;font-weight:600}
   .sub{font-size:12px;color:var(--ink-soft);margin-top:5px}
+  .jobline{display:block;text-align:left;background:none;border:none;padding:4px 0 0;
+    font-family:var(--body);font-size:12px;color:var(--ink-soft);cursor:pointer}
+  .jobline b{font-family:var(--tag);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+  .jobline .chev{color:var(--ghost);margin-left:4px}
   .head-actions{margin-left:auto;display:flex;gap:7px;align-items:center;flex-shrink:0}
   .save-dot{font-family:var(--tag);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ghost);white-space:nowrap}
   .save-dot.on{color:var(--lake)}
@@ -44,13 +50,20 @@
   .warn button{background:none;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:2px;
     font-size:11px;padding:3px 7px;margin-left:8px;font-family:var(--tag);letter-spacing:.1em;text-transform:uppercase}
 
-  .findrow{padding:0 0 8px}
-  .findrow input{width:100%;border:1px solid var(--line);border-radius:2px;padding:9px 11px;
+  .findrow{padding:0 0 8px;display:flex;gap:6px}
+  .findrow .btn{flex:0 0 auto}
+  .findrow .btn .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--lake);margin-left:5px;vertical-align:middle}
+  .findrow input{flex:1;min-width:0;border:1px solid var(--line);border-radius:2px;padding:9px 11px;
                  font-family:var(--body);font-size:15px;background:#fff;color:var(--ink)}
   .findrow input:focus{outline:none;border-color:var(--ink)}
-  .toolrow{display:flex;gap:6px;padding:0 0 9px}
+  .toolrow{display:flex;gap:6px;padding:0 0 9px;flex-wrap:wrap}
   .toolrow .btn{flex:1}
 
+  .pickrow{display:flex;gap:6px;padding:0 0 9px}
+  .pickrow select{flex:1;min-width:0;border:1px solid var(--line);border-radius:2px;padding:9px 8px;
+    background:#fff;color:var(--ink);font-family:var(--body);font-size:14px}
+  .pickrow select:focus{outline:none;border-color:var(--ink)}
+  .pickrow select.on{border-color:var(--ink);background:var(--ink);color:#fff}
   .rail{display:flex;gap:6px;overflow-x:auto;padding:0 0 11px;scrollbar-width:none}
   .rail::-webkit-scrollbar{display:none}
   .rail button{flex:0 0 auto;background:transparent;border:1px solid var(--line);border-radius:2px;
@@ -73,9 +86,14 @@
   .shot.blank{background:repeating-linear-gradient(45deg,#E9EDEA,#E9EDEA 10px,#E3E8E5 10px,#E3E8E5 20px)}
   .shot img{width:100%;height:100%;object-fit:cover;display:block}
   .addphoto{position:absolute;inset:0;width:100%;height:100%;border:none;background:transparent;
-    color:var(--ink-soft);font-family:var(--tag);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+    color:var(--ink-soft);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+  .addphoto .em{font-size:38px;line-height:1;filter:saturate(.55) opacity(.75)}
+  .addphoto .hint{font-family:var(--tag);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
   .tagno{position:absolute;left:0;top:0;background:var(--ink);color:#fff;font-family:var(--num);font-size:12px;padding:5px 9px}
-  .qtybadge{position:absolute;left:0;top:26px;background:var(--ink-soft);color:#fff;font-family:var(--num);font-size:11px;padding:3px 8px}
+  .nowban{position:absolute;left:0;top:26px;background:rgba(22,33,31,.88);color:#fff;font-family:var(--tag);
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:5px 9px;max-width:80%}
+  .nowban.buy{background:var(--buy)}
+  .qtybadge{position:absolute;left:0;top:56px;background:var(--ink-soft);color:#fff;font-family:var(--num);font-size:11px;padding:3px 8px}
   .buytag{position:absolute;left:0;bottom:0;background:var(--buy);color:#fff;font-family:var(--tag);
     font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px}
   .kill{position:absolute;right:6px;top:6px;width:30px;height:30px;border-radius:50%;border:none;
@@ -83,15 +101,21 @@
   .tick{position:absolute;right:6px;top:6px;width:32px;height:32px;border-radius:50%;
         border:2px solid #fff;background:rgba(22,33,31,.45);color:#fff;font-size:17px;display:grid;place-items:center}
   .tick.on{background:var(--lake)}
+  .tick.big{width:56px;height:56px;font-size:27px;right:10px;top:10px}
+  .delivered{position:absolute;right:6px;top:6px;background:var(--lake);color:#fff;font-family:var(--tag);
+    font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;border-radius:2px}
+  .card.arrived{opacity:.72}
   .stamp{position:absolute;right:0;bottom:0;padding:6px 10px;font-family:var(--tag);font-size:12px;
     letter-spacing:.1em;text-transform:uppercase;color:#fff;max-width:78%;text-align:right}
   .stamp.lake{background:var(--lake)} .stamp.hold{background:var(--hold)}
   .stamp.sell{background:var(--sell)} .stamp.give{background:var(--give)}
+  .stamp.buy{background:var(--buy)}
 
   .body{padding:12px 12px 14px;display:flex;flex-direction:column;gap:11px}
   textarea.desc{width:100%;border:none;border-bottom:1px dashed var(--line);background:transparent;
     font-family:var(--body);font-size:16px;color:var(--ink);resize:none;padding:2px 0 7px;line-height:1.35;overflow:hidden}
   textarea.desc:focus{outline:none;border-bottom-color:var(--ink)}
+  .mic{float:right;margin-top:-30px;position:relative;z-index:2}
   textarea.desc::placeholder{color:var(--ghost)}
 
   .field{display:flex;flex-direction:column;gap:6px}
@@ -100,33 +124,63 @@
   .opts{display:flex;flex-wrap:wrap;gap:6px}
   .opt{border:1px solid var(--line);background:transparent;border-radius:2px;padding:8px 10px;font-size:13px;color:var(--ink-soft);line-height:1.1}
   .opt[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
-  .opt.lake[aria-pressed="true"]{background:var(--lake);border-color:var(--lake)}
-  .opt.hold[aria-pressed="true"]{background:var(--hold);border-color:var(--hold)}
-  .opt.sell[aria-pressed="true"]{background:var(--sell);border-color:var(--sell)}
-  .opt.give[aria-pressed="true"]{background:var(--give);border-color:var(--give)}
+  .opt.lake[aria-pressed="true"]{background:var(--lake);border-color:var(--lake);color:#fff}
+  .opt.hold[aria-pressed="true"]{background:var(--hold);border-color:var(--hold);color:#fff}
+  .opt.sell[aria-pressed="true"]{background:var(--sell);border-color:var(--sell);color:#fff}
+  .opt.give[aria-pressed="true"]{background:var(--give);border-color:var(--give);color:#fff}
   .opt.buy[aria-pressed="true"]{background:var(--buy);border-color:var(--buy);color:#fff}
-  .rooms{display:none} .rooms.show{display:flex;flex-direction:column;gap:6px}
-  .rooms .opt[aria-pressed="true"]{background:var(--lake-soft);border-color:var(--lake);color:var(--lake);font-weight:600}
+  .opt.flag-fragile[aria-pressed="true"]{background:var(--sell);border-color:var(--sell);color:#fff}
+  .opt.flag-heavy[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+  .opt.flag-urgent[aria-pressed="true"]{background:var(--hold);border-color:var(--hold);color:#fff}
+  .flagtag{position:absolute;right:0;top:0;font-family:var(--tag);font-size:10px;letter-spacing:.12em;
+    text-transform:uppercase;color:#fff;padding:4px 8px}
+  .flagtag.fragile{background:var(--sell)} .flagtag.heavy{background:var(--ink)}
+  .flagtag.urgent{background:var(--hold)}
+  .kidwrap{display:flex;flex-direction:column;gap:6px;padding-left:10px;border-left:2px solid var(--line)}
+  .kidwrap .opt[aria-pressed="true"]{background:var(--lake-soft);border-color:var(--lake);color:var(--lake);font-weight:600}
+  .kidopt{display:flex;align-items:center;gap:8px}
+  .kidopt img{width:34px;height:26px;object-fit:cover;border-radius:2px;flex:0 0 auto}
 
   .dims{display:flex;gap:6px;align-items:center}
   .dims input{width:100%;min-width:0;border:1px solid var(--line);border-radius:2px;padding:7px 8px;
     font-family:var(--num);font-size:14px;text-align:center;background:#fff;color:var(--ink)}
   .dims span{color:var(--ghost);font-size:12px}
   .dims input:focus,.notes:focus{outline:none;border-color:var(--ink)}
+  .contents{width:100%;border:1px solid var(--line);border-radius:2px;padding:7px 9px;
+    font-family:var(--body);font-size:14px;background:#fff;color:var(--ink);resize:none;overflow:hidden;line-height:1.35}
+  .contents:focus{outline:none;border-color:var(--ink)}
   .notes{width:100%;border:1px solid var(--line);border-radius:2px;padding:7px 9px;
     font-family:var(--body);font-size:14px;background:#fff;color:var(--ink);resize:none;overflow:hidden;line-height:1.35}
   .more{background:none;border:none;padding:0;color:var(--ink-soft);font-family:var(--tag);
     font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-align:left}
   .extra{display:none;flex-direction:column;gap:11px} .extra.show{display:flex}
+  .strip{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .thumb{position:relative;width:62px;height:47px;border-radius:2px;overflow:hidden;display:block;
+    background:var(--paper);border:1px solid var(--line)}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .thumb.cond{border-color:var(--sell)}
+  .thumb b{position:absolute;left:0;bottom:0;right:0;background:var(--sell);color:#fff;font-family:var(--tag);
+    font-size:8px;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:1px 0}
+  .thumb .wait{display:grid;place-items:center;height:100%;color:var(--ghost);font-size:16px}
+  .thumb .rm{position:absolute;right:1px;top:1px;width:17px;height:17px;border:none;border-radius:50%;
+    background:rgba(22,33,31,.65);color:#fff;font-size:11px;line-height:1;display:grid;place-items:center;padding:0}
+  .row2{display:flex;gap:6px;flex-wrap:wrap}
+  .mic{background:none;border:none;color:var(--ink-soft);font-size:15px;padding:0 4px}
+  .mic.on{color:var(--sell)}
 
+  .nomatch{border:1px dashed var(--line);border-radius:3px;background:var(--card);padding:24px 18px;
+    text-align:center;color:var(--ink-soft);font-size:14px;line-height:1.5;margin-top:16px}
+  .nomatch .btn{display:block;margin:14px auto 0}
   .empty{border:1px dashed var(--line);border-radius:3px;background:var(--card);padding:34px 22px;text-align:center;margin-top:18px}
   .empty h2{font-family:var(--tag);font-size:18px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 8px}
   .empty p{margin:0 auto 18px;max-width:40ch;color:var(--ink-soft);font-size:14px;line-height:1.5}
 
   .board-group{margin:0 0 26px}
   .board-head{font-family:var(--tag);font-size:14px;letter-spacing:.1em;text-transform:uppercase;
-    border-bottom:2px solid var(--ink);padding-bottom:6px;margin:0 0 12px;display:flex;justify-content:space-between}
-  .board-head span{color:var(--ink-soft);font-family:var(--num);font-size:12px;letter-spacing:0}
+    border-bottom:2px solid var(--ink);padding-bottom:6px;margin:0 0 12px;display:flex;align-items:center;gap:10px}
+  .board-head .ord{background:var(--ink);color:#fff;font-size:11px;letter-spacing:.1em;padding:3px 7px;border-radius:2px}
+  .board-head .n{margin-left:auto;color:var(--ink-soft);font-family:var(--num);font-size:12px;letter-spacing:0}
+  .board-head img{width:44px;height:33px;object-fit:cover;border-radius:2px}
   .board{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   @media(min-width:620px){.board{grid-template-columns:repeat(3,1fr)}}
   @media(min-width:980px){.board{grid-template-columns:repeat(4,1fr)}}
@@ -134,6 +188,7 @@
     box-shadow:var(--shadow);text-align:left;padding:0;display:block;width:100%}
   .tile.wish{border-color:var(--buy)}
   .tile img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+  .blanktile .em{display:block;font-size:26px;line-height:1;margin-bottom:6px;filter:saturate(.55) opacity(.75)}
   .blanktile{aspect-ratio:4/3;display:grid;place-items:center;padding:10px;text-align:center;
     color:var(--ghost);font-size:12px;line-height:1.35;
     background:repeating-linear-gradient(45deg,#F3F5F3,#F3F5F3 10px,#EDF0EE 10px,#EDF0EE 20px)}
@@ -142,42 +197,83 @@
   .tile .cap-buy{display:block;color:var(--buy);font-family:var(--tag);font-size:10px;
     letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
 
+  .roomview{position:fixed;inset:0;z-index:55;background:var(--paper);overflow-y:auto;
+    padding:calc(14px + env(safe-area-inset-top)) 14px calc(30px + env(safe-area-inset-bottom))}
+  .rv-in{max-width:1180px;margin:0 auto}
+  .rv-top{display:flex;align-items:flex-end;gap:12px;margin-bottom:14px}
+  .rv-top h2{font-family:var(--tag);font-size:24px;letter-spacing:.05em;text-transform:uppercase;
+    margin:0;line-height:1.05}
+  .rv-top .sub{font-size:12px;color:var(--ink-soft);margin-top:5px}
+  .rv-top .btn{margin-left:auto;flex:0 0 auto}
+  .rv-hero{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;border-radius:3px;
+    margin:0 0 14px;box-shadow:var(--shadow)}
+  .rv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(min-width:620px){.rv-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(min-width:980px){.rv-grid{grid-template-columns:repeat(4,1fr)}}
+  .rv-grid button{padding:0;border:none;background:none;display:block}
+  .rv-grid img{width:100%;aspect-ratio:1;object-fit:cover;display:block;border-radius:3px;
+    box-shadow:var(--shadow)}
+  .rv-none{margin-top:16px;font-size:13px;color:var(--ghost);line-height:1.6}
+  .rv-none b{font-family:var(--num);font-size:12px;color:var(--ink-soft);font-weight:400}
+  .rv-empty{border:1px dashed var(--line);border-radius:3px;padding:30px;text-align:center;
+    color:var(--ink-soft);font-size:14px;line-height:1.5;background:#fff}
+  .board-head{cursor:pointer}
+  .board-head .eye{font-family:var(--tag);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    border:1px solid var(--line);border-radius:2px;padding:3px 7px;color:var(--ink-soft);background:#fff}
+
   .pager{display:flex;align-items:center;justify-content:center;gap:14px;padding:22px 0 4px}
   .pager span{font-family:var(--num);font-size:13px;color:var(--ink-soft)}
   footer{padding:22px 0 8px;color:var(--ghost);font-size:12px;line-height:1.6;text-align:center}
+  footer .vow{color:var(--ink-soft)}
 
   .bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--ink);color:#fff;
-       padding:11px 14px calc(11px + env(safe-area-inset-bottom))}
+       padding:11px 14px calc(50px + env(safe-area-inset-bottom))}
   .bar-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
   .tally{font-family:var(--tag);font-size:13px;letter-spacing:.1em;text-transform:uppercase;line-height:1.3;flex:1 1 100%}
   .tally b{font-family:var(--num);letter-spacing:0;font-weight:600}
   .tally small{display:block;font-family:var(--body);font-size:11px;letter-spacing:0;text-transform:none;color:#A9BAB6;margin-top:2px}
   .tally small.risk{color:#FF9C9C;font-weight:600}
   .bar .btn{background:transparent;color:#fff;border-color:#4A5A57}
-  .bar .btn.solid{background:#fff;color:var(--ink);border-color:#fff;margin-left:auto}
+  .bar .btn.solid{background:#fff;color:var(--ink);border-color:#fff}
 
   .bulk{position:fixed;left:0;right:0;bottom:0;z-index:31;background:var(--lake);color:#fff;
-        padding:11px 14px calc(11px + env(safe-area-inset-bottom))}
+        padding:11px 14px calc(50px + env(safe-area-inset-bottom))}
   .bulk .lbl{color:#CDE5E3;flex:1 1 100%}
   .bulk .btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
   .bulk select{flex:1 1 100%;padding:10px;border-radius:2px;border:1px solid rgba(255,255,255,.5);
     background:#fff;color:var(--ink);font-family:var(--body);font-size:15px}
 
-  .toast{position:fixed;left:14px;right:14px;bottom:calc(122px + env(safe-area-inset-bottom));z-index:40;
+  .toast{position:fixed;left:14px;right:14px;bottom:calc(160px + env(safe-area-inset-bottom));z-index:40;
     background:var(--ink);color:#fff;border-radius:3px;padding:12px 14px;display:flex;align-items:center;
     gap:12px;box-shadow:0 8px 30px rgba(0,0,0,.3);font-size:14px}
   .toast button{background:none;border:1px solid rgba(255,255,255,.6);color:#fff;border-radius:2px;
     padding:6px 11px;font-family:var(--tag);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-left:auto}
 
-  .sheet{position:fixed;inset:0;z-index:50;background:rgba(22,33,31,.5);display:flex;align-items:flex-end;justify-content:center}
-  .sheet-in{background:var(--paper);width:100%;max-width:620px;max-height:88vh;overflow-y:auto;
-    border-radius:8px 8px 0 0;padding:18px 16px calc(28px + env(safe-area-inset-bottom))}
+  .sheet{position:fixed;left:0;right:0;top:0;bottom:0;height:100dvh;z-index:70;
+    background:rgba(22,33,31,.5);display:flex;align-items:flex-end;justify-content:center;
+    overscroll-behavior:contain}
+  .sheet-in{background:var(--paper);width:100%;max-width:620px;max-height:86dvh;overflow-y:auto;
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+    border-radius:8px 8px 0 0;padding:18px 16px calc(86px + env(safe-area-inset-bottom))}
+  .sheet-done{display:block;width:100%;margin-top:18px}
+  body.locked{overflow:hidden;position:relative}
   .sheet h2{font-family:var(--tag);font-size:18px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 4px}
+  .promise{background:var(--lake-soft);border:1px solid var(--lake);border-radius:3px;
+    padding:14px;margin:16px 0 6px}
+  .promise h3.first{margin-top:0;border:none;color:var(--lake);padding-bottom:2px}
+  .promise p{color:var(--ink);font-size:13.5px}
+  .promise .btn{flex:1;min-width:120px}
+  .promise .small{font-size:12px;color:var(--ink-soft);margin:2px 0 0}
+  .sheet .small{font-size:12px;color:var(--ink-soft);line-height:1.5}
+  .steps{margin:0 0 10px;padding-left:20px;font-size:13.5px;line-height:1.65;color:var(--ink)}
+  .steps li{margin-bottom:5px}
   .sheet h3{font-family:var(--tag);font-size:13px;letter-spacing:.12em;text-transform:uppercase;
     margin:22px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--line);color:var(--ink-soft)}
   .sheet p{font-size:13px;line-height:1.5;color:var(--ink-soft);margin:0 0 10px}
   .sheet label{display:block;font-family:var(--tag);font-size:11px;letter-spacing:.14em;
     text-transform:uppercase;color:var(--ghost);margin:0 0 4px}
+  #sigPad{width:100%;height:180px;background:#fff;border:1px dashed var(--line);border-radius:3px;
+    touch-action:none;margin-bottom:11px;display:block}
   .sheet input[type=text],.sheet textarea{width:100%;border:1px solid var(--line);border-radius:2px;
     padding:9px 10px;font-family:var(--num);font-size:13px;background:#fff;color:var(--ink);margin-bottom:11px}
   .sheet textarea{font-family:var(--body);font-size:15px;line-height:1.5;resize:vertical}
@@ -188,6 +284,80 @@
   .status.ok{border-color:var(--lake);color:var(--lake)}
   .status.no{border-color:var(--sell);color:var(--sell)}
   .close{float:right;background:none;border:none;font-size:26px;line-height:1;color:var(--ink-soft)}
+  .jobrow{background:#fff;border:1px solid var(--line);border-radius:3px;padding:11px;margin-bottom:8px}
+  .jobrow.here{border-color:var(--lake);box-shadow:0 0 0 1px var(--lake)}
+  .jobrow.closed{opacity:.72}
+  .jobrow.arch{opacity:.55}
+  .jobrow input{width:100%;border:1px solid var(--line);border-radius:2px;padding:8px 9px;margin-bottom:6px;
+    font-family:var(--body);font-size:14px;background:#fff;color:var(--ink)}
+  .jobrow input:focus{outline:none;border-color:var(--ink)}
+  .jobrow .row{margin-bottom:0}
+  .jobname{font-family:var(--tag);font-size:15px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+  .jobsub{font-size:12px;color:var(--ink-soft);line-height:1.4}
+  .jobsub{margin-bottom:8px}
+  .badge{font-family:var(--tag);font-size:10px;letter-spacing:.12em;background:var(--lake);color:#fff;
+    padding:2px 6px;border-radius:2px;vertical-align:middle}
+  .badge.closed{background:var(--ink-soft)}
+  .siterow{background:#fff;border:1px solid var(--line);border-radius:3px;padding:11px;margin-bottom:8px}
+  .sitehead{font-family:var(--tag);font-size:14px;letter-spacing:.08em;text-transform:uppercase;
+    margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .sitehead .stopno{margin-left:auto;font-family:var(--num);font-size:11px;letter-spacing:0;
+    background:var(--paper);color:var(--ink-soft);padding:2px 7px;border-radius:2px;text-transform:none}
+  .siterow input{margin-bottom:6px !important;font-family:var(--body) !important;font-size:14px !important}
+  .siterow .btn{flex:1}
+  .roomrow{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);
+    border-radius:2px;padding:7px 9px;margin-bottom:6px}
+  .logoprev{max-height:44px;max-width:150px;object-fit:contain;background:#fff;border:1px solid var(--line);
+    border-radius:2px;padding:4px}
+  .roomrow img{width:52px;height:39px;object-fit:cover;border-radius:2px}
+  .roomrow .nm{flex:1;font-size:14px;line-height:1.3}
+  .roomrow .nm small{display:block;color:var(--ghost);font-size:11px}
+
+  .demo{position:absolute;right:6px;bottom:6px;background:var(--ink-soft);color:#fff;
+    font-family:var(--tag);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:3px 7px;border-radius:2px}
+  .plan{background:#fff;border:1px solid var(--line);border-radius:3px;padding:14px;margin-bottom:10px}
+  .plan.best{border-color:var(--lake);box-shadow:0 0 0 1px var(--lake)}
+  .plan h4{font-family:var(--tag);font-size:15px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 2px;
+    display:flex;align-items:baseline;gap:8px}
+  .plan .price{margin-left:auto;font-family:var(--num);font-size:15px;color:var(--ink)}
+  .plan p{margin:6px 0 10px;font-size:13px;line-height:1.45}
+  .plan ul{margin:0 0 12px;padding-left:18px;font-size:13px;line-height:1.6;color:var(--ink-soft)}
+  .plan .btn{width:100%}
+  .stub{font-size:12px;color:var(--ghost);line-height:1.45;margin-top:4px}
+  .status a{color:inherit}
+
+  .tour{position:fixed;inset:0;z-index:60;background:var(--paper);display:flex;flex-direction:column;
+    padding:calc(24px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom))}
+  .tour-in{max-width:520px;margin:auto;width:100%}
+  .tour h2{font-family:var(--tag);font-size:26px;letter-spacing:.05em;text-transform:uppercase;margin:0 0 12px;line-height:1.1}
+  .tour p{font-size:16px;line-height:1.55;color:var(--ink-soft);margin:0 0 14px}
+  .tour .demoart{border:1px solid var(--line);border-radius:3px;background:#fff;padding:12px;margin:0 0 16px;
+    font-size:14px;line-height:1.5}
+  .tour .demoart code{font-family:var(--num);font-size:12.5px;color:var(--ink);display:block;white-space:pre;
+    background:var(--paper);padding:9px 11px;border-radius:2px;margin-top:8px;overflow-x:auto}
+  .tour-nav{display:flex;align-items:center;gap:10px;margin-top:20px}
+  .dots{display:flex;gap:6px;margin-right:auto}
+  .dots i{width:7px;height:7px;border-radius:50%;background:var(--line);display:block}
+  .dots i.on{background:var(--ink)}
+
+  .jpick{position:fixed;inset:0;z-index:60;background:var(--paper);overflow-y:auto;display:flex;
+    padding:calc(24px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom))}
+  .jpick-in{max-width:520px;margin:auto;width:100%}
+  .jpick h2{font-family:var(--tag);font-size:26px;letter-spacing:.05em;text-transform:uppercase;
+    margin:0 0 12px;line-height:1.1}
+  .jpick p{font-size:16px;line-height:1.55;color:var(--ink-soft);margin:0 0 16px}
+  .jpick-list{display:flex;flex-direction:column;gap:8px;margin:0 0 16px}
+  .jpick-row{display:block;width:100%;text-align:left;border:1px solid var(--line);border-radius:3px;
+    background:#fff;padding:13px 14px;cursor:pointer;font:inherit;color:inherit}
+  .jpick-row:active{background:var(--paper)}
+  .jpick-row.loading{opacity:.55}
+  .jpick-name{display:block;font-weight:600;font-size:16px;line-height:1.25}
+  .jpick-sub{display:block;font-family:var(--num);font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+  .jpick-or{font-family:var(--tag);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-soft);text-align:center;margin:0 0 12px}
+  .jpick input[type=text]{width:100%;box-sizing:border-box;font:inherit;padding:11px 12px;
+    border:1px solid var(--line);border-radius:3px;background:#fff;margin:0 0 10px}
+  .jpick .stub{font-size:12.5px;color:var(--ink-soft);margin-top:14px;line-height:1.5}
 
   #printout{display:none}
   @media print{
@@ -197,8 +367,9 @@
     .p-group{break-after:page;page-break-after:always}
     .p-group:last-child{break-after:auto;page-break-after:auto}
     .p-head{font-family:var(--tag);font-size:15pt;letter-spacing:.1em;text-transform:uppercase;
-      border-bottom:2px solid #000;padding-bottom:5px;margin:0 0 10px}
-    .p-head span{float:right;font-size:11pt}
+      border-bottom:2px solid #000;padding-bottom:5px;margin:0 0 10px;display:flex;align-items:center;gap:10px}
+    .p-head .n{margin-left:auto;font-size:11pt}
+    .p-head img{width:70px;height:52px;object-fit:cover}
     .p-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
     .p-grid.nophoto{grid-template-columns:1fr}
     .p-item{border:1px solid #999;padding:6px;break-inside:avoid;font-size:8.5pt;line-height:1.35}
@@ -206,9 +377,41 @@
     .p-item img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;margin-bottom:4px}
     .p-item b{font-family:var(--num)}
     .p-item .sub{color:#555}
+    .p-addr{font-size:10pt;color:#444;margin:0 0 6px}
+    .p-logo{max-height:0.7in;max-width:3in;display:block;margin:0 0 8px}
+    .p-sig{display:flex;gap:24px;margin-top:14px}
+    .p-sig div{flex:1;border-top:1px solid #000;padding-top:5px;font-size:9pt;color:#555}
+    .p-sig img{max-height:0.8in;display:block;margin-bottom:4px}
+    .p-load{margin-top:6px}
+    .p-step{border:1px solid #999;padding:8px;margin-bottom:8px;break-inside:avoid}
+    .p-step h4{margin:0 0 4px;font-family:var(--tag);font-size:13pt;letter-spacing:.06em;
+      text-transform:uppercase;display:flex;align-items:center;gap:8px}
+    .p-step h4 span{background:#000;color:#fff;font-family:var(--num);font-size:10pt;padding:2px 7px}
+    .p-step h4 em{margin-left:auto;font-style:normal;font-size:10pt;font-weight:400}
+    .p-nums{font-size:9.5pt;line-height:1.5;color:#333}
+    .p-foot{font-size:9.5pt;color:#666;margin-top:8px}
+    .p-table{width:100%;border-collapse:collapse;font-size:9.5pt}
+    .p-table th{text-align:left;border-bottom:2px solid #000;padding:4px 6px;font-family:var(--tag);
+      font-size:9pt;letter-spacing:.08em;text-transform:uppercase}
+    .p-table td{border-bottom:1px solid #ddd;padding:4px 6px;vertical-align:top}
+    .p-table small{color:#666}
+    .p-labels{display:grid;grid-template-columns:1fr 1fr;gap:0}
+    .p-label{border:1px dashed #999;height:2.4in;padding:12px;break-inside:avoid;display:flex;flex-direction:column}
+    .lb-top{display:flex;align-items:baseline;border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:6px}
+    .lb-n{font-family:var(--num);font-size:30pt;line-height:1;font-weight:600}
+    .lb-part{margin-left:auto;font-size:10pt}
+    .lb-room{font-family:var(--tag);font-size:16pt;letter-spacing:.05em;text-transform:uppercase;line-height:1.1}
+    .lb-desc{font-size:11pt;margin-top:4px}
+    .lb-cont{font-size:9pt;color:#444;margin-top:4px;flex:1;overflow:hidden}
+    .lb-foot{font-size:8pt;color:#777;border-top:1px solid #ccc;padding-top:4px}
+    .lb-qr{width:0.85in;height:0.85in;margin-left:auto;display:block}
+    .lb-flag{font-family:var(--tag);font-size:9pt;letter-spacing:.1em;text-transform:uppercase;
+      margin-left:10px;border:1.5px solid #000;padding:1px 6px}
+    .p-label.lb-fragile{border-color:#8C3A3A;border-width:2px}
     .p-sign{break-after:page;page-break-after:always;height:9in;display:flex;flex-direction:column;
       justify-content:center;align-items:center;text-align:center}
-    .p-sign h2{font-family:var(--tag);font-size:60pt;line-height:1;letter-spacing:.02em;text-transform:uppercase;margin:0 0 24px}
+    .p-sign h2{font-family:var(--tag);font-size:54pt;line-height:1;letter-spacing:.02em;text-transform:uppercase;margin:0 0 18px}
+    .p-sign img{width:5.5in;height:4in;object-fit:cover;border:1px solid #000;margin:0 0 18px}
     .p-sign p{font-size:13pt;margin:0 0 10px}
     .p-sign .nums{font-family:var(--num);font-size:12pt;max-width:6in;line-height:1.7}
   }
@@ -220,24 +423,29 @@
   <div class="wrap">
     <div class="head-row">
       <div>
-        <h1>Furniture manifest</h1>
-        <div class="sub">Photograph it, say what it is, tap where it goes.</div>
+        <h1>MoveIT Manifest</h1>
+        <button class="sub jobline" id="jobline">Photograph it, say what it is, tap where it goes.</button>
       </div>
       <div class="head-actions">
         <span class="save-dot" id="saveDot"></span>
-        <button class="btn ghost sm" id="refreshBtn">Refresh</button>
         <button class="btn" id="addTop">Add photos</button>
       </div>
     </div>
     <div class="findrow">
-      <input type="search" id="find" placeholder="Search descriptions, notes, numbers">
+      <input type="search" id="find" placeholder="Search">
+      <button class="btn ghost sm" id="filterBtn">Filter</button>
     </div>
     <div class="toolrow">
-      <button class="btn ghost sm" id="selectBtn">Select</button>
       <button class="btn ghost sm" id="boardBtn">Board view</button>
-      <button class="btn ghost sm" id="addItemBtn">+ Item, no photo</button>
+      <button class="btn ghost sm" id="arriveBtn">Check off</button>
+      <button class="btn ghost sm" id="moreBtn">More</button>
     </div>
-    <div class="rail" id="rail"></div>
+    <div class="pickrow" id="pickrow" hidden>
+      <select id="fromSel"></select>
+      <select id="toSel"></select>
+      <button class="btn sm" id="viewRoomBtn" hidden>View</button>
+    </div>
+    <div class="rail" id="rail" hidden></div>
   </div>
   <div class="warn" id="warn" hidden></div>
 </header>
@@ -257,10 +465,10 @@
 <div class="bar" id="bar">
   <div class="bar-in">
     <div class="tally" id="tally"><span>Loading</span></div>
-    <button class="btn" id="settingsBtn">Settings</button>
-    <button class="btn" id="loadBtn">Load file</button>
-    <button class="btn" id="saveFileBtn">Save file</button>
     <button class="btn solid" id="printBtn">Print</button>
+    <button class="btn" id="shareBtn">Share</button>
+    <button class="btn" id="jobsBtn">Jobs</button>
+    <button class="btn" id="settingsBtn">Settings</button>
   </div>
 </div>
 
@@ -279,22 +487,209 @@
 <input type="file" id="loader" accept=".html,.json,text/html,application/json" hidden>
 
 <script>
-/* ===================== constants ===================== */
-var DEFAULT_ROOMS = [
-  "Upstairs central guest","Upstairs guest north","Guest south","Bunk room",
-  "Main level guest","Main level master","Main level living room","Garage apartment","Garage"
+/* ===================== places model ===================== */
+function uid(p){ return (p||"p") + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+var DEFAULT_SITES = [
+  {id:"o-current", name:"Current house", pickup:true, dropoff:false, address:"", notes:"", kids:[]},
+  {id:"d-new", name:"New house", pickup:false, dropoff:true, address:"", notes:"", kids:[
+    {id:"r-primary", name:"Primary bedroom"},
+    {id:"r-bed2", name:"Bedroom 2"},
+    {id:"r-bed3", name:"Bedroom 3"},
+    {id:"r-living", name:"Living room"},
+    {id:"r-dining", name:"Dining room"},
+    {id:"r-kitchen", name:"Kitchen"},
+    {id:"r-office", name:"Office"},
+    {id:"r-basement", name:"Basement"},
+    {id:"r-garage", name:"Garage"}
+  ]},
+  {id:"o-unit", name:"Storage unit", pickup:true, dropoff:true, address:"", notes:"", kids:[
+    {id:"u-keep", name:"Keep pile"},
+    {id:"u-sell", name:"Sell pile"}
+  ]},
+  {id:"d-donate", name:"Donate", pickup:false, dropoff:true, address:"", notes:"", kids:[]},
+  {id:"buy", name:"Need to buy", pickup:true, dropoff:false, address:"", notes:"", kids:[]}
 ];
-var KEEP = "Homewood \u2014 keep", SELL = "Homewood \u2014 sell", GIVE = "Donate", LAKE = "Lake house";
-var BUY = "To buy";
-var FROM = ["Garage","Homewood storage",BUY];
-var TO = [LAKE, KEEP, SELL, GIVE];
-var TONE = {}; TONE[LAKE]="lake"; TONE[KEEP]="hold"; TONE[SELL]="sell"; TONE[GIVE]="give";
-var SIZES = {
-  small:    {px:700,  q:0.50, kb:40},
-  standard: {px:900,  q:0.55, kb:70},
-  detailed: {px:1600, q:0.72, kb:250}
-};
-var PAGE_SIZE = 25, CHUNK_CAP = 380000, BUCKET = "photos";
+
+var TONES = ["lake","hold","sell","give","buy"];
+var BUY_ID = "buy";
+
+function clonePlaces(p){ return JSON.parse(JSON.stringify(p)); }
+
+/* One list of sites; a site can be a pickup, a drop-off, or both. */
+function allSites(){ return (places && places.sites) || []; }
+function listOf(kind){
+  return allSites().filter(function(s){ return kind === "from" ? s.pickup : s.dropoff; });
+}
+function findPlace(kind, id){
+  var l = allSites();
+  for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i];
+  return null;
+}
+/* Drop-off order is the order drop-off sites appear in the list.
+   Loading a truck runs backwards: last stop goes in first. */
+function dropOrder(id){
+  var l = listOf("to").map(function(s){ return s.id; });
+  var i = l.indexOf(id);
+  return i < 0 ? 999 : i + 1;
+}
+function normalizePlaces(p){
+  if (!p) return {sites: clonePlaces(DEFAULT_SITES)};
+  if (p.sites && p.sites.length) return p;
+  if (p.origins || p.dests){
+    var out = [];
+    (p.origins || []).forEach(function(o){
+      out.push({id:o.id, name:o.name, pickup:true, dropoff:false, address:"", notes:"", kids:o.kids || []});
+    });
+    (p.dests || []).forEach(function(d){
+      var same = out.filter(function(x){ return x.name === d.name; })[0];
+      if (same && !(same.kids||[]).length && !(d.kids||[]).length){ same.dropoff = true; return; }
+      out.push({id:d.id, name:d.name, pickup:false, dropoff:true, address:"", notes:"", kids:d.kids || []});
+    });
+    return {sites: out};
+  }
+  return {sites: clonePlaces(DEFAULT_SITES)};
+}
+function findKid(kind, id, kidId){
+  var p = findPlace(kind, id);
+  if (!p) return null;
+  var k = p.kids || [];
+  for (var i = 0; i < k.length; i++) if (k[i].id === kidId) return k[i];
+  return null;
+}
+function nameOf(kind, id, kidId){
+  var p = findPlace(kind, id);
+  if (!p) return "";
+  var k = kidId ? findKid(kind, id, kidId) : null;
+  return k ? p.name + " \u2014 " + k.name : p.name;
+}
+function toneOf(id){
+  var i = listOf("to").map(function(p){ return p.id; }).indexOf(id);
+  return i < 0 ? "hold" : TONES[i % TONES.length];
+}
+function everyLeaf(kind){
+  var out = [];
+  listOf(kind).forEach(function(p){
+    if ((p.kids||[]).length) p.kids.forEach(function(k){ out.push({top:p, kid:k}); });
+    else out.push({top:p, kid:null});
+  });
+  return out;
+}
+function placeRefs(){
+  var out = [];
+  allSites().forEach(function(p){
+    (p.kids||[]).forEach(function(k){
+      if (k.photoId) out.push({id:k.photoId, chunk:k.chunk, url:k.url});
+    });
+  });
+  return out;
+}
+/* Internal ids look like "d-new", "r-bed2", "buy" or "pkmu1l4p1dw6y".
+   Anything else that turns up in a from/to field is a human place name from
+   an older save, and is worth keeping. */
+function looksLikeId(v){
+  v = String(v || "");
+  return v === "buy" || /^[a-z]{1,2}-[a-z0-9]+$/.test(v) || /^[pki][a-z0-9]{8,}$/.test(v);
+}
+var NAME_ALIAS = {"to buy":"Need to buy", "need to buy":"Need to buy"};
+function siteByName(name){
+  var want = String(name || "").trim().toLowerCase();
+  want = NAME_ALIAS[want] ? NAME_ALIAS[want].toLowerCase() : want;
+  var l = allSites();
+  for (var i = 0; i < l.length; i++){
+    if (String(l[i].name).trim().toLowerCase() === want) return l[i];
+  }
+  return null;
+}
+/* Find the site by name, or add it. Never silently drop a destination. */
+var adoptedLegacy = false;
+function ensureSite(name, kind){
+  var hit = siteByName(name);
+  if (!hit){
+    adoptedLegacy = true;
+    hit = {id: uid("p"), name: String(name).trim(), pickup:false, dropoff:false,
+           address:"", notes:"", kids:[]};
+    places.sites.push(hit);
+  }
+  if (kind === "from") hit.pickup = true; else hit.dropoff = true;
+  return hit;
+}
+function ensureKid(site, name){
+  site.kids = site.kids || [];
+  var want = String(name || "").trim().toLowerCase();
+  for (var i = 0; i < site.kids.length; i++){
+    if (String(site.kids[i].name).trim().toLowerCase() === want) return site.kids[i];
+  }
+  var k = {id: uid("k"), name: String(name).trim()};
+  site.kids.push(k);
+  return k;
+}
+
+function migrateItem(it){
+  if (it.from && !findPlace("from", it.from)){
+    var o = siteByName(it.from);
+    it.from = o ? o.id : (looksLikeId(it.from) ? "" : ensureSite(it.from, "from").id);
+  }
+  if (it.to && !findPlace("to", it.to)){
+    var d = siteByName(it.to);
+    it.to = d ? d.id : (looksLikeId(it.to) ? "" : ensureSite(it.to, "to").id);
+  }
+  if (it.room && it.to){
+    var site = findPlace("to", it.to);
+    if (site && !it.toKid) it.toKid = ensureKid(site, it.room).id;
+    delete it.room;
+  }
+  /* A site that is actually in use must offer itself in the right list. */
+  var fs = it.from ? findPlace("from", it.from) : null;
+  if (fs && !fs.pickup) fs.pickup = true;
+  var ds = it.to ? findPlace("to", it.to) : null;
+  if (ds && !ds.dropoff) ds.dropoff = true;
+  if (!it.toKid) it.toKid = "";
+  if (!it.fromKid) it.fromKid = "";
+  return it;
+}
+function sitesToText(list){
+  return list.map(function(p){
+    return p.name + (p.kids||[]).map(function(k){ return "\n  " + k.name; }).join("");
+  }).join("\n");
+}
+function textToSites(txt, existing){
+  var lines = txt.split("\n").filter(function(l){ return l.trim().length; });
+  var names = lines.map(function(l){ return l.replace(/^[-\s]+/, "").trim(); });
+  var out = [], cur = null, ti = 0;
+  function reuseId(pool, name, idx){
+    var hit = pool.filter(function(x){ return x.name === name; })[0];
+    if (hit) return hit.id;
+    var pos = pool[idx];
+    if (pos && names.indexOf(pos.name) < 0) return pos.id;
+    return null;
+  }
+  lines.forEach(function(raw){
+    var child = /^(\s\s|\t|-\s?)/.test(raw);
+    var name = raw.replace(/^[-\s]+/, "").trim();
+    if (!name) return;
+    if (!child || !cur){
+      var keepId = reuseId(existing, name, ti) || uid("p");
+      var was = existing.filter(function(x){ return x.id === keepId; })[0] || {};
+      cur = {id:keepId, name:name, kids:[],
+             pickup: was.pickup !== undefined ? was.pickup : true,
+             dropoff: was.dropoff !== undefined ? was.dropoff : true,
+             address: was.address || "", notes: was.notes || ""};
+      out.push(cur); ti++;
+    } else {
+      var prevTop = existing.filter(function(x){ return x.id === cur.id; })[0];
+      var pool = prevTop ? (prevTop.kids || []) : [];
+      var kidId = reuseId(pool, name, cur.kids.length) || uid("k");
+      var prev = pool.filter(function(x){ return x.id === kidId; })[0] || {};
+      cur.kids.push({id:kidId, name:name, photoId:prev.photoId || "", chunk:prev.chunk, url:prev.url || ""});
+    }
+  });
+  return out.length ? out : existing;
+}
+
+/* ===================== constants ===================== */
+var PAGE_SIZE = 25, CHUNK_CAP = 380000;
+var SIZES = {small:{px:700,q:0.50,kb:40}, standard:{px:900,q:0.55,kb:70}, detailed:{px:1600,q:0.72,kb:250}};
 var $ = function(s){ return document.querySelector(s); };
 function esc(v){
   return String(v == null ? "" : v).replace(/[<>&"]/g, function(c){
@@ -337,19 +732,73 @@ var store = (function(){
 })();
 
 /* ===================== state ===================== */
-var items = [], seq = 0, removed = {}, rooms = DEFAULT_ROOMS.slice();
-var images = {}, chunks = {}, cfg = {url:"", key:""};
-var filter = "all", search = "", page = 0;
-var selectMode = false, boardMode = false;
+var items = [], seq = 0, removed = {}, places = {sites: clonePlaces(DEFAULT_SITES)};
+var images = {}, chunks = {};
+var filter = "all", filterFrom = "", filterTo = "", search = "", page = 0;
+var selectMode = false, boardMode = false, arriveMode = false;
 var selected = new Set(), expanded = new Set();
-var pendingPhotoFor = null, sizeChoice = "standard";
+var pendingPhotoFor = null, pendingPlace = null, pendingExtra = null, pendingLogo = false;
+var pendingRooms = null;
+var pendingOpenItem = null, pendingJoin = null, quickFrom = "", quickTo = "", sizeChoice = "standard";
+var FREE_LIMIT = 10;
+var PRICE = {move:"$4.99", keeper:"$14.99", convert:"$9.99", pack5:"$12.45", pack10:"$24.90", each:"$2.49"};
+/* Test codes. These live in the page, so anyone who views source can read them.
+   Fine while checkout is stubbed; they move server-side once billing is real. */
+var CODES = {
+  "GASTON-FAMILY":{plan:"family", months:0,  credits:10, once:true,
+                   label:"10 jobs and unlimited items, nothing expires"},
+  "MOVEIT-FREE":  {plan:"move",   months:12, credits:0,  label:"one move job, free for a year"},
+  "MOVEIT-CREW":  {plan:"pack",   months:12, credits:5,  label:"a pack of 5 jobs"},
+  "MOVEIT-KEEP":  {plan:"keeper", months:0,  credits:0,  label:"a Keeper account"}
+};
+function redeem(raw){
+  var code = String(raw || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  var hit = null;
+  Object.keys(CODES).forEach(function(k){
+    if (k.replace(/[^A-Z0-9]/g, "") === code) hit = k;
+  });
+  if (!hit) return null;
+  var c = CODES[hit];
+  /* A one-time code is spent on redemption. The record rides with the account,
+     so it carries to the other phone too and cannot be entered twice. */
+  account.used = account.used || {};
+  if (c.once && account.used[hit]) return {spent:true, label:c.label};
+  activate(c.plan, c.months, c.credits);
+  if (c.once) account.used[hit] = Date.now();
+  account.code = hit;
+  saveMeta(true);
+  saveGlobal();
+  return c;
+}
+
+var account = {plan:"free", startedAt:0, expiresAt:0, credits:0, onboarded:false, convertOffered:false};
+var jobs = [];               /* {id,name,client,moveDate,createdAt,closed,archived} */
+var jobSort = "date", showArchived = false;
+var jobId = "job1";          /* the one currently open */
+var job = {id:"job1", name:"Our move", startedAt:0};
+
+/* Job 1 keeps the original keys so existing data is never moved. */
+function metaKeyLocal(){ return jobId === "job1" ? "fm:meta" : "fm:meta:" + jobId; }
+function metaKeyCloud(){ return jobId === "job1" ? "manifest.json" : "manifest-" + jobId + ".json"; }
+function currentJob(){
+  var j = jobs.filter(function(x){ return x.id === jobId; })[0];
+  return j || {id:jobId, name:"Our move", createdAt:0};
+}
+function jobsAllowed(){
+  if (account.plan === "family") return Math.max(10, account.credits || 0);
+  if (account.plan === "pack") return Math.max(1, account.credits || 0);
+  if (account.plan === "free") return 1;
+  if (account.plan === "keeper") return 5;
+  return 1;
+}
 var metaTimer = null, pulling = false, storageOK = true, dirty = 0;
 var warned = "", undoBuf = null, toastTimer = null;
 
 var grid = $("#grid");
 function touch(it){ it.ts = Date.now(); dirty++; }
-function cloudOn(){ return !!(cfg.url && cfg.key); }
+
 function srcFor(it){ return it.url || images[it.id] || null; }
+function kidPhoto(k){ return k ? (k.url || images[k.photoId] || null) : null; }
 
 /* ===================== notices ===================== */
 function flag(txt, ok){
@@ -387,101 +836,450 @@ function toast(msg, label, action){
   toastTimer = setTimeout(function(){ t.remove(); }, 12000);
 }
 
-/* ===================== cloud ===================== */
+/* ===================== Supabase =====================
+   Everything saves on this device first. A Supabase project you own is the
+   copy that lets a second phone join: both use the same project URL and key,
+   so whoever you send the setup link to is working on the same list. */
+var cfg = {url:"", key:"", acct:""};
+var BUCKET = "photos";
+var photoUrls = {};
+/* Opened from a view link: one job, read only, no project key at all. */
+var viewOnly = false, viewJobKey = "";
+/* Written while loading, read once by firstRun() to decide whether this
+   device still has to be asked which job it is joining. */
+var cloudHadAccount = false, cloudHadManifest = false, deviceHasData = false, needsChooser = false;
+
+function ckConfigured(){ return !!(cfg.url && cfg.key); }
+function cloudOn(){ return ckConfigured(); }
+function readOnly(){ return viewOnly; }
+function randKey(){
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,10) +
+         Math.random().toString(36).slice(2,10);
+}
+/* Each job lives in its own unguessable folder, so a link to one job
+   reaches nothing else in the bucket. */
+function jobKeyOf(j){ return (j && j.key) || ""; }
+function jobFolder(){
+  if (viewOnly) return "j-" + viewJobKey;
+  var k = jobKeyOf(currentJob());
+  return k ? "j-" + k : "";          /* empty means the old flat layout */
+}
+function acctFolder(){ return cfg.acct ? "a-" + cfg.acct : ""; }
 function pubUrl(name){ return cfg.url + "/storage/v1/object/public/" + BUCKET + "/" + name; }
-function cloudPut(name, body, type){
-  return fetch(cfg.url + "/storage/v1/object/" + BUCKET + "/" + name, {
-    method:"POST",
-    headers:{apikey:cfg.key, Authorization:"Bearer " + cfg.key, "Content-Type":type, "x-upsert":"true"},
-    body:body
-  }).then(function(r){
-    if (!r.ok) return r.text().then(function(t){ throw new Error(r.status + " " + t.slice(0,80)); });
-    return true;
-  });
-}
-function cloudDelete(name){
-  return fetch(cfg.url + "/storage/v1/object/" + BUCKET + "/" + name, {
-    method:"DELETE",
-    headers:{apikey:cfg.key, Authorization:"Bearer " + cfg.key}
-  }).catch(function(){});
-}
-function cloudGetJSON(name){
-  return fetch(pubUrl(name) + "?t=" + Date.now(), {cache:"no-store"})
-    .then(function(r){ return r.ok ? r.json() : null; });
+
+/* Legacy anon keys are JWTs and want an Authorization header too.
+   New sb_publishable_ keys are rejected if sent as a Bearer token. */
+function authHeaders(extra){
+  var h = Object.assign({apikey: cfg.key}, extra || {});
+  if (cfg.key.indexOf("sb_") !== 0) h.Authorization = "Bearer " + cfg.key;
+  return h;
 }
 function dataUrlToBlob(d){
-  var parts = d.split(","), head = parts[0], b64 = parts[1];
-  var m = head.match(/:(.*?);/), type = m ? m[1] : "image/jpeg";
-  var bin = atob(b64), arr = new Uint8Array(bin.length);
+  var parts = String(d).split(","), m = parts[0].match(/:(.*?);/);
+  var bin = atob(parts[1] || ""), arr = new Uint8Array(bin.length);
   for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-  return new Blob([arr], {type:type});
+  return new Blob([arr], {type: m ? m[1] : "image/jpeg"});
 }
-function pushPhoto(it){
-  if (!cloudOn() || it.url || !images[it.id]) return Promise.resolve(false);
-  return cloudPut(it.id + ".jpg", dataUrlToBlob(images[it.id]), "image/jpeg").then(function(){
-    it.url = pubUrl(it.id + ".jpg");
+
+async function cloudPut(name, body, type){
+  var r = await fetch(cfg.url + "/storage/v1/object/" + BUCKET + "/" + name, {
+    method:"POST",
+    headers: authHeaders({"Content-Type":type, "x-upsert":"true"}),
+    body: body
+  });
+  if (!r.ok){
+    var t = await r.text();
+    throw new Error(r.status + " " + t.slice(0, 90));
+  }
+  return true;
+}
+async function cloudGet(name){
+  var r = await fetch(pubUrl(name) + "?t=" + Date.now(), {cache:"no-store"});
+  if (!r.ok) return null;
+  return r.text();
+}
+function cloudDelete(name){
+  return fetch(cfg.url + "/storage/v1/object/" + BUCKET + "/" + name,
+    {method:"DELETE", headers: authHeaders({})}).catch(function(){});
+}
+
+/* One file per job, so two jobs never overwrite each other.
+   Job 1 keeps the original names so an existing project still opens. */
+function ckName(kind, extra){
+  if (kind === "account"){
+    var a = acctFolder();
+    return a ? a + "/account.json" : "account.json";
+  }
+  if (kind === "manifest"){
+    var f = jobFolder();
+    if (f) return f + "/manifest.json";
+    return jobId === "job1" ? "manifest.json" : "manifest_" + jobId + ".json";   /* legacy */
+  }
+  return (jobId === "job1" ? "imgs_" : "imgs_" + jobId + "_") + extra + ".json";
+}
+function ckType(){ return "application/json"; }
+async function ckStart(){ return ckConfigured() ? "on" : "off"; }
+async function ckPut(name, type, text){
+  return cloudPut(name, new Blob([text], {type:"application/json"}), "application/json");
+}
+async function ckGet(name){ return cloudGet(name); }
+
+/* One object per photo. Two people adding photos at the same time never
+   collide, because nobody is rewriting a shared batch. */
+function photoName(id){
+  var f = jobFolder();
+  return f ? f + "/p-" + id + ".jpg" : id + ".jpg";   /* no folder = legacy layout */
+}
+async function pushImage(id){
+  if (!cloudOn() || !images[id]) return "";
+  if (photoUrls[id]) return photoUrls[id];
+  await cloudPut(photoName(id), dataUrlToBlob(images[id]), "image/jpeg");
+  photoUrls[id] = pubUrl(photoName(id));
+  return photoUrls[id];
+}
+function setKidUrl(photoId, url){
+  allSites().forEach(function(p){
+    (p.kids || []).forEach(function(k){ if (k.photoId === photoId) k.url = url; });
+  });
+}
+function setExtraUrl(photoId, url){
+  items.forEach(function(it){
+    (it.extra || []).forEach(function(x){ if (x.id === photoId) x.url = url; });
+  });
+}
+async function pushPhoto(it){
+  if (!cloudOn() || it.url || !images[it.id]) return false;
+  try{
+    it.url = await pushImage(it.id);
     it.ts = Date.now();
     return true;
+  }catch(e){
+    qAdd({k:"photo", id:it.id});
+    return false;
+  }
+}
+/* Every photo this job owns: pieces, extra shots, room photos, signatures, logo. */
+function allPhotoIds(){
+  var out = [];
+  function add(id){ if (id && images[id] && out.indexOf(id) < 0) out.push(id); }
+  items.forEach(function(i){
+    add(i.id);
+    (i.extra || []).forEach(function(x){ add(x.id); });
   });
+  placeRefs().forEach(function(r){ add(r.id); });
+  var cj = currentJob();
+  [cj.sigpickup, cj.sigdelivery].forEach(function(sg){ if (sg) add(sg.id); });
+  if (account.logoId) add(account.logoId);
+  return out;
 }
 async function pushAllPhotos(){
   var n = 0, fail = 0;
-  for (var i = 0; i < items.length; i++){
-    try { if (await pushPhoto(items[i])) n++; } catch(e){ fail++; }
+  var ids = allPhotoIds();
+  for (var i = 0; i < ids.length; i++){
+    var id = ids[i];
+    if (photoUrls[id]) continue;
+    try{
+      var url = await pushImage(id);
+      var it = items.filter(function(x){ return x.id === id; })[0];
+      if (it && !it.url) it.url = url;
+      setKidUrl(id, url);
+      setExtraUrl(id, url);
+      if (account.logoId === id) account.logoUrl = url;
+      var cj = currentJob();
+      [cj.sigpickup, cj.sigdelivery].forEach(function(sg){ if (sg && sg.id === id) sg.url = url; });
+      n++;
+    }catch(e){ fail++; }
   }
-  if (n) await saveMeta(true);
+  if (n){ await saveMeta(true); await saveGlobal(); }
   return {n:n, fail:fail};
 }
 
+/* Older saves put every photo in the root of the bucket, so one key saw them all.
+   This lifts the open job into its own folder and clears the old copies out. */
+function legacyPhotoName(id){ return id + ".jpg"; }
+function looksLegacy(it){
+  return !!(it.url && it.url.indexOf("/photos/" + it.id + ".jpg") >= 0);
+}
+function tidyNeeded(){
+  if (!cloudOn()) return false;
+  if (!jobKeyOf(currentJob())) return true;
+  return items.some(looksLegacy);
+}
+async function tidyIntoFolders(report){
+  if (!cloudOn()) return {moved:0, failed:0};
+  var j = currentJob();
+  if (!j.key){ j.key = randKey(); await saveGlobal(); }
+  var moved = 0, failed = 0;
+  /* anything the project has but this device does not, fetched from the old path */
+  for (var a = 0; a < items.length; a++){
+    var it = items[a];
+    if (!images[it.id] && looksLegacy(it)){
+      try{
+        var got = await fetch(it.url);
+        if (got.ok){
+          var blob = await got.blob();
+          images[it.id] = await new Promise(function(res){
+            var fr = new FileReader();
+            fr.onload = function(){ res(fr.result); };
+            fr.onerror = function(){ res(null); };
+            fr.readAsDataURL(blob);
+          });
+        }
+      }catch(e){}
+    }
+  }
+  /* only now is it clear what there is to move */
+  var ids = allPhotoIds();
+  for (var i = 0; i < ids.length; i++){
+    var id = ids[i];
+    if (!images[id]) continue;
+    try{
+      delete photoUrls[id];
+      var url = await pushImage(id);        /* writes to the new folder */
+      var own = items.filter(function(x){ return x.id === id; })[0];
+      if (own) own.url = url;
+      setKidUrl(id, url);
+      setExtraUrl(id, url);
+      if (account.logoId === id) account.logoUrl = url;
+      await cloudDelete(legacyPhotoName(id));
+      moved++;
+    }catch(e){ failed++; }
+    if (report) report(moved, failed, ids.length);
+  }
+  await saveMeta(true);
+  await saveGlobal();
+  /* the manifest now lives in the folder too, so retire the old one */
+  if (jobId === "job1") await cloudDelete("manifest.json");
+  else await cloudDelete("manifest_" + jobId + ".json");
+  return {moved:moved, failed:failed};
+}
+
+/* The setup link carries the project and the job, so a second phone
+   configures itself and lands in the right list. */
+/* Full access: the project key travels, so the holder can edit and will see
+   every job in the project. For you and Katie. */
+function shareLink(){
+  if (!cloudOn()) return "";
+  return location.origin + location.pathname + "#cfg=" +
+    encodeURIComponent(btoa(JSON.stringify(cfg))) + "&job=" + encodeURIComponent(jobId);
+}
+/* Read only, this job alone. No project key, so the holder cannot write,
+   cannot list the bucket, and cannot reach another job's folder. */
+function viewLink(){
+  var k = jobKeyOf(currentJob());
+  if (!cfg.url || !k) return "";
+  return location.origin + location.pathname + "#view=" +
+    encodeURIComponent(btoa(JSON.stringify({url:cfg.url, job:k})));
+}
+async function syncNow(){
+  if (!cloudOn()) return;
+  try { if (merge(await readRemote())) render(); } catch(e){}
+  try { await ckPut(ckName("manifest"), ckType(), JSON.stringify(packed())); }
+  catch(e){ qAdd({k:"meta", id:"manifest"}); }
+  await pushAllPhotos();
+  try { await ckPut(ckName("account"), ckType(), JSON.stringify(packedGlobal())); } catch(e){}
+  await flushQueue(false);
+  renderTally();
+}
+
+/* Anything that cannot reach the project waits here until it can. */
+var queue = [], flushing = false;
+function qAdd(entry){
+  var dup = queue.filter(function(q){ return q.k === entry.k && q.id === entry.id && q.job === jobId; })[0];
+  if (!dup) queue.push({k:entry.k, id:entry.id, job:jobId});
+  store.set("fm:queue", JSON.stringify(queue)).catch(function(){});
+  renderTally();
+}
+function qDrop(entry){
+  queue = queue.filter(function(q){ return !(q.k === entry.k && q.id === entry.id && q.job === entry.job); });
+  store.set("fm:queue", JSON.stringify(queue)).catch(function(){});
+}
+async function qLoad(){
+  try { var r = await store.get("fm:queue"); if (r) queue = JSON.parse(r.value) || []; } catch(e){}
+}
+function clearWarn(){ warned = ""; var b = $("#warn"); if (b) b.hidden = true; }
+
+async function flushQueue(loud){
+  if (flushing || !cloudOn() || !queue.length) return;
+  if (typeof navigator !== "undefined" && navigator.onLine === false) return;
+  flushing = true;
+  if (loud) flag("Syncing…", false);
+  var work = queue.slice();
+  for (var i = 0; i < work.length; i++){
+    var q = work[i];
+    if (q.job !== jobId && q.k !== "global") continue;   /* other jobs sync when opened */
+    try{
+      if (q.k === "photo"){
+        if (!images[q.id]){ qDrop(q); continue; }
+        var url = await pushImage(q.id);
+        var it = items.filter(function(x){ return x.id === q.id; })[0];
+        if (it && !it.url){ it.url = url; it.ts = Date.now(); }
+        setKidUrl(q.id, url);
+        setExtraUrl(q.id, url);
+      } else if (q.k === "meta"){
+        await ckPut(ckName("manifest"), ckType(), JSON.stringify(packed()));
+      } else if (q.k === "global"){
+        await ckPut(ckName("account"), ckType(), JSON.stringify(packedGlobal()));
+      }
+      qDrop(q);
+    }catch(e){ break; }
+  }
+  flushing = false;
+  renderTally();
+  if (!queue.length){
+    clearWarn();
+    if (loud) flag("Synced", true);
+  }
+}
+
 /* ===================== persistence ===================== */
-function packed(){ return {items:items, seq:seq, removed:removed, rooms:rooms}; }
+function packed(){ return {items:items, seq:seq, removed:removed, places:places, account:account, job:job, v:3}; }
+function packedGlobal(){ return {account:account, jobs:jobs, ts:Date.now()}; }
+
+async function saveGlobal(){
+  if (viewOnly) return;
+  try { await store.set("fm:global", JSON.stringify(packedGlobal())); } catch(e){}
+  if (cloudOn()){
+    try{
+      await ckPut(ckName("account"), ckType("account"), JSON.stringify(packedGlobal()));
+    }catch(e){ qAdd({k:"global", id:"account"}); }
+  }
+}
+async function loadGlobal(){
+  var g = null;
+  try { var l = await store.get("fm:global"); if (l) g = JSON.parse(l.value); } catch(e){}
+  if (cloudOn()){
+    try{
+      var t = await ckGet(ckName("account"));
+      var r = t ? JSON.parse(t) : null;
+      if (r){
+        cloudHadAccount = true;
+        if (!g || (r.ts || 0) > (g.ts || 0)) g = r;
+      }
+    }catch(e){}
+  }
+  if (g){
+    if (g.account) account = Object.assign({}, account, g.account);
+    if (g.jobs && g.jobs.length) jobs = g.jobs;
+  }
+  if (!jobs.length) jobs = [{id:"job1", key:randKey(), name:"Our move", client:"",
+                             createdAt:Date.now(), closed:false}];
+  jobs.forEach(function(j){ if (!j.key) j.key = randKey(); });
+}
 
 function merge(remote){
   if (!remote) return false;
   var before = JSON.stringify(items);
   removed = Object.assign({}, remote.removed || {}, removed);
-  if (Array.isArray(remote.rooms) && remote.rooms.length &&
-      JSON.stringify(rooms) === JSON.stringify(DEFAULT_ROOMS)) rooms = remote.rooms;
+  if (remote.account && (remote.account.startedAt || 0) >= (account.startedAt || 0)){
+    var keepOnboard = account.onboarded;
+    account = Object.assign({}, account, remote.account);
+    account.onboarded = keepOnboard || account.onboarded;
+  }
+  if (remote.job && remote.job.id && !job.id) job = remote.job;
+  var isDefault = JSON.stringify(places.sites) === JSON.stringify(DEFAULT_SITES);
+  if (remote.places && isDefault) places = normalizePlaces(remote.places);
+  else if (remote.rooms && remote.rooms.length && isDefault){
+    pendingRooms = remote.rooms.slice();
+  }
   var map = new Map(items.map(function(i){ return [i.id, i]; }));
   (remote.items || []).forEach(function(r){
-    if (r.to === "Homewood storage") r.to = KEEP;
     var mine = map.get(r.id);
     if (!mine) map.set(r.id, r);
     else if ((r.ts || 0) > (mine.ts || 0)) map.set(r.id, Object.assign({}, mine, r));
   });
   items = Array.from(map.values())
     .filter(function(i){ return !removed[i.id]; })
+    .map(migrateItem)
     .sort(function(a,b){ return (a.n||0) - (b.n||0); });
+  /* An old save carried a flat room list. Put any room no piece used onto
+     whichever destination the used rooms landed on. */
+  if (pendingRooms && pendingRooms.length){
+    var host = null, best = 0;
+    listOf("to").forEach(function(sIt){
+      var hits = (sIt.kids || []).filter(function(k){
+        return pendingRooms.indexOf(k.name) >= 0;
+      }).length;
+      if (hits > best){ best = hits; host = sIt; }
+    });
+    if (!host) host = listOf("to").filter(function(sIt){ return (sIt.kids||[]).length; })[0] || findPlace("to", "d-new");
+    if (host) pendingRooms.forEach(function(nm){ ensureKid(host, nm); });
+    pendingRooms = null;
+  }
+  /* An older save brought its own place names. The starter sites nobody used
+     are just clutter next to them, so take them out. */
+  if (adoptedLegacy){
+    var defaults = DEFAULT_SITES.map(function(d){ return d.id; });
+    var used = {};
+    items.forEach(function(i){ if (i.from) used[i.from] = 1; if (i.to) used[i.to] = 1; });
+    places.sites = places.sites.filter(function(sIt){
+      if (defaults.indexOf(sIt.id) < 0) return true;
+      if (used[sIt.id]) return true;
+      if (sIt.address || sIt.notes) return true;
+      return (sIt.kids || []).some(function(k){ return k.photoId || k.url; });
+    });
+    if (!places.sites.length) places.sites = clonePlaces(DEFAULT_SITES);
+    adoptedLegacy = false;
+  }
   seq = Math.max.apply(null, [seq, remote.seq || 0].concat(items.map(function(i){ return i.n || 0; })));
   return JSON.stringify(items) !== before;
 }
-
+function legacyManifestName(){
+  return jobId === "job1" ? "manifest.json" : "manifest_" + jobId + ".json";
+}
+/* Same two paths, but for any job rather than the one that is open. The job
+   chooser uses these to count pieces before you commit to opening one. */
+function manifestNameFor(j){
+  var k = jobKeyOf(j);
+  if (k) return "j-" + k + "/manifest.json";
+  return j.id === "job1" ? "manifest.json" : "manifest_" + j.id + ".json";
+}
+function legacyManifestNameFor(j){
+  return j.id === "job1" ? "manifest.json" : "manifest_" + j.id + ".json";
+}
+async function jobCountRemote(j){
+  if (!cloudOn()) return null;
+  try{
+    var t = await ckGet(manifestNameFor(j));
+    if (!t && jobKeyOf(j)) t = await ckGet(legacyManifestNameFor(j));
+    if (!t) return null;
+    var d = JSON.parse(t);
+    return (d.items || []).filter(function(i){ return !i.demo; }).length;
+  }catch(e){ return null; }
+}
 function readRemote(){
   if (!cloudOn()) return Promise.resolve(null);
-  return cloudGetJSON("manifest.json").catch(function(){ return null; });
+  return ckGet(ckName("manifest")).then(function(t){
+    if (t){ try { return JSON.parse(t); } catch(e){ return null; } }
+    /* Nothing in this job's folder yet. An older save may still be sitting
+       in the root of the bucket, so look there before giving up. */
+    return ckGet(legacyManifestName()).then(function(old){
+      try { return old ? JSON.parse(old) : null; } catch(e){ return null; }
+    }).catch(function(){ return null; });
+  }).catch(function(){ return null; });
 }
-
 async function saveMeta(now){
+  if (viewOnly) return;          /* a view link changes nothing, here or in the project */
   clearTimeout(metaTimer);
   async function run(){
-    try { await store.set("fm:meta", JSON.stringify(packed())); }
+    try { await store.set(metaKeyLocal(), JSON.stringify(packed())); }
     catch(e){ storageOK = false; }
     if (cloudOn()){
       try{
-        merge(await readRemote());
-        await cloudPut("manifest.json", new Blob([JSON.stringify(packed())], {type:"application/json"}), "application/json");
+        await ckPut(ckName("manifest"), ckType("manifest"), JSON.stringify(packed()));
         dirty = 0;
       }catch(e){
-        warn("Couldn't save to your project (" + e.message + "). The device copy is fine — tap Save file for a backup.");
+        qAdd({k:"meta", id:"manifest"});
+        warn("No signal \u2014 your work is saved on this phone and uploads when you are back online.");
       }
     }
+    if (cloudOn()) pushAllPhotos();
     flag("Saved", true);
     renderTally();
   }
   if (now) return run();
   metaTimer = setTimeout(run, 600);
 }
-
 function pickChunk(len){
   var ids = Object.keys(chunks).map(Number).sort(function(a,b){ return a-b; });
   for (var i = 0; i < ids.length; i++){
@@ -492,11 +1290,17 @@ function pickChunk(len){
   return next;
 }
 async function saveChunk(c){
+  if (viewOnly) return true;
   var body = JSON.stringify(chunks[c] || {});
   try{
     await store.set("fm:img:" + c, body);
     var back = await store.get("fm:img:" + c);
     if (!back || back.value.length !== body.length) throw new Error("short write");
+    if (cloudOn()){
+      try { await ckPut(ckName("imgs", c), ckType("imgs"), body); }
+      catch(e){ qAdd({k:"chunk", id:c}); }
+    } else if (ckConfigured()) qAdd({k:"chunk", id:c});
+
     return true;
   }catch(e){
     storageOK = false;
@@ -505,23 +1309,56 @@ async function saveChunk(c){
   }
 }
 async function loadChunks(list){
-  var pool = list || items;
+  var extras = [];
+  (list || items).forEach(function(i){
+    (i.extra || []).forEach(function(x){ extras.push(x); });
+  });
+  var cj = currentJob();
+  [cj.sigpickup, cj.sigdelivery].forEach(function(sg){ if (sg) extras.push(sg); });
+  if (account.logoId) extras.push({id:account.logoId, chunk:account.logoChunk, url:account.logoUrl});
+  var pool = (list || items).concat(placeRefs()).concat(extras);
   var need = [];
   pool.forEach(function(i){
-    if (!srcFor(i) && i.chunk != null && need.indexOf(i.chunk) < 0) need.push(i.chunk);
+    var has = i.url || images[i.id];
+    if (!has && i.chunk != null && need.indexOf(i.chunk) < 0) need.push(i.chunk);
   });
   for (var i = 0; i < need.length; i++){
+    var got = false;
     try{
       var r = await store.get("fm:img:" + need[i]);
       if (r){
         chunks[need[i]] = Object.assign(chunks[need[i]] || {}, JSON.parse(r.value));
         Object.assign(images, chunks[need[i]]);
+        got = true;
       }
     }catch(e){}
+    if (!got && cloudOn()){
+      try{
+        var t = await ckGet(ckName("imgs", need[i]));
+        if (t){
+          chunks[need[i]] = Object.assign(chunks[need[i]] || {}, JSON.parse(t));
+          Object.assign(images, chunks[need[i]]);
+          store.set("fm:img:" + need[i], t).catch(function(){});
+        }
+      }catch(e){}
+    }
   }
   paintImages();
 }
-
+async function syncNow(){
+  if (!cloudOn()) return;
+  try { if (merge(await readRemote())) render(); } catch(e){}
+  try { await ckPut(ckName("manifest"), ckType("manifest"), JSON.stringify(packed())); }
+  catch(e){ qAdd({k:"meta", id:"manifest"}); }
+  var ids = Object.keys(chunks);
+  for (var i = 0; i < ids.length; i++){
+    try { await ckPut(ckName("imgs", ids[i]), ckType("imgs"), JSON.stringify(chunks[ids[i]] || {})); }
+    catch(e){ qAdd({k:"chunk", id:ids[i]}); }
+  }
+  try { await ckPut(ckName("account"), ckType("account"), JSON.stringify(packedGlobal())); } catch(e){}
+  await flushQueue(false);
+  renderTally();
+}
 async function pull(loud){
   if (pulling) return;
   var ae = document.activeElement;
@@ -534,7 +1371,6 @@ async function pull(loud){
   if (loud) flag(cloudOn() ? (changed ? "Updated" : "Up to date") : "This device only", true);
   pulling = false;
 }
-
 async function selfTest(){
   try{
     var v = new Array(60000).join("x") + Date.now();
@@ -548,34 +1384,228 @@ async function selfTest(){
   }
   renderTally();
 }
-
 async function load(){
   var h = location.hash.match(/cfg=([^&]+)/);
   if (h){
     try{
-      var c = JSON.parse(atob(decodeURIComponent(h[1])));
-      if (c.url && c.key){ cfg = c; await store.set("fm:cfg", JSON.stringify(cfg)); }
-      history.replaceState(null, "", location.pathname + location.search);
+      var c = JSON.parse(atob(decodeURIComponent(h[1].split("&")[0])));
+      if (c.url && c.key){
+        cfg = {url:c.url, key:c.key, acct:c.acct || ""};
+        await store.set("fm:cfg", JSON.stringify(cfg));
+      }
     }catch(e){}
   }
   try { var sc = await store.get("fm:cfg"); if (sc) cfg = JSON.parse(sc.value); } catch(e){}
+  var hj = location.hash.match(/job=([A-Za-z0-9_-]+)/);
+  await loadGlobal();
+  /* An account record sitting at a guessable path would hand out every job's
+     folder key, so move it somewhere only a working link knows about. */
+  if (cloudOn() && !viewOnly && !cfg.acct){
+    cfg.acct = randKey();
+    jobs.forEach(function(j){ if (!j.key) j.key = randKey(); });
+    try { await store.set("fm:cfg", JSON.stringify(cfg)); } catch(e){}
+    try{
+      await ckPut(ckName("account"), ckType(), JSON.stringify(packedGlobal()));
+      await cloudDelete("account.json");
+    }catch(e){}
+  }
+  try { var lj = await store.get("fm:lastjob"); if (lj && lj.value) jobId = lj.value; } catch(e){}
+  try { var js2 = await store.get("fm:jobsort"); if (js2 && js2.value) jobSort = js2.value; } catch(e){}
+  if (hj) jobId = hj[1];
+  if (!jobs.filter(function(j){ return j.id === jobId; })[0]){
+    if (hj) jobs.push({id:hj[1], name:"Shared job", client:"", createdAt:Date.now(), closed:false});
+    else jobId = jobs[0].id;
+  }
+  job = currentJob();
+  var hview = location.hash.match(/view=([^&]+)/);
+  if (hview){
+    try{
+      var v = JSON.parse(atob(decodeURIComponent(hview[1])));
+      if (v.url && v.job){
+        cfg = {url:v.url, key:"", acct:""};
+        viewOnly = true; viewJobKey = v.job;
+      }
+    }catch(e){}
+  }
+  var hlive = location.hash.match(/live=([A-Za-z0-9_-]+)/);
+  var hitem = location.hash.match(/item=([A-Za-z0-9_-]+)/);
+  if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+  if (hitem) pendingOpenItem = hitem[1];
+  if (hlive) pendingJoin = hlive[1];
   try { var so = await store.get("fm:size"); if (so && SIZES[so.value]) sizeChoice = so.value; } catch(e){}
-  try { var sm = await store.get("fm:meta"); if (sm) merge(JSON.parse(sm.value)); } catch(e){}
+  try {
+    var sm = await store.get(metaKeyLocal());
+    if (sm){ deviceHasData = true; merge(JSON.parse(sm.value)); }
+  } catch(e){}
+  var pickedBefore = false;
+  try { var pk = await store.get("fm:picked"); pickedBefore = !!(pk && pk.value); } catch(e){}
+  var freshDevice = !viewOnly && !hj && !hview && !pickedBefore && !deviceHasData;
   fillBulk();
   render();
-  if (cloudOn() && merge(await readRemote())) render();
+  if (viewOnly){
+    jobs = [{id:"view", key:viewJobKey, name:"Shared list", client:"", createdAt:Date.now(), closed:false}];
+    jobId = "view"; job = jobs[0];
+    try{
+      var txt = await cloudGet(ckName("manifest"));
+      if (txt) merge(JSON.parse(txt));
+    }catch(e){}
+    fillBulk(); render();
+    warn("You are viewing a shared list. Photos and rooms are all here, but changes are not saved.");
+  } else if (cloudOn()){
+    var pulled = await readRemote();
+    if (pulled){ cloudHadManifest = true; if (merge(pulled)){ fillBulk(); render(); } }
+  }
+  /* A device that has never been here, landing on a project that already holds
+     something, is asked which job it is joining rather than being dropped into
+     whichever one happens to be first in the list. */
+  needsChooser = cloudOn() && freshDevice && jobs.length > 0 &&
+                 (cloudHadAccount || cloudHadManifest);
+  /* Working links carry the account folder. One sent before that folder existed
+     opens the app but cannot see the shared job list, so anything added on this
+     device would quietly go somewhere the others never look. */
+  if (cloudOn() && !viewOnly && !cloudHadAccount){
+    if (cloudHadManifest){
+      warn("This link is out of date. You can read the list, but anything you add here " +
+           "may not reach everyone else — ask whoever sent it for a fresh link.");
+    } else if (!deviceHasData){
+      warn("No shared job list was found at this link. If someone sent it to you, ask them " +
+           "for an updated link — otherwise start a job and this project becomes yours.");
+    }
+  }
   var lost = items.filter(function(i){ return !srcFor(i) && i.chunk != null; }).length;
   if (lost) warn(lost + " photo" + (lost > 1 ? "s" : "") + " didn't come back from storage. If you have a saved file, tap Load file to restore them.");
   await selfTest();
   renderFoot();
+  if (pendingOpenItem){
+    var target = items.filter(function(i){ return i.id === pendingOpenItem; })[0];
+    pendingOpenItem = null;
+    if (target) openPiece(target);
+  }
+  await qLoad();
+  flushQueue(false);
   setInterval(function(){ if (!document.hidden && cloudOn()) pull(false); }, 20000);
+  setInterval(function(){ if (!document.hidden) flushQueue(false); }, 25000);
+  window.addEventListener("online", function(){ flushQueue(true); });
   document.addEventListener("visibilitychange", function(){ if (!document.hidden && cloudOn()) pull(false); });
+}
+
+/* ===================== plan and limits ===================== */
+var DAY = 86400000;
+function realItems(){ return items.filter(function(i){ return !i.demo; }); }
+function unlimited(){
+  if (account.plan === "family" || account.plan === "keeper") return true;
+  if (account.plan === "move" || account.plan === "pack")
+    return !account.expiresAt || Date.now() < account.expiresAt;
+  return false;
+}
+function roomLeft(){ return unlimited() ? Infinity : Math.max(0, FREE_LIMIT - realItems().length); }
+function daysLeft(){
+  if (!account.expiresAt) return Infinity;
+  return Math.ceil((account.expiresAt - Date.now()) / DAY);
+}
+function activate(plan, months, credits){
+  account.plan = plan;
+  account.startedAt = Date.now();
+  account.expiresAt = months ? Date.now() + months * 30 * DAY : 0;
+  if (credits) account.credits = (account.credits || 0) + credits;
+  if (!job.id){ job.id = uid("j"); job.startedAt = Date.now(); }
+  account.convertOffered = false;
+  saveMeta(true);
+  saveGlobal();
+  render();
+}
+function planLine(){
+  if (account.plan === "family"){
+    var open = jobs.filter(function(j){ return !j.closed && !j.archived; }).length;
+    return "Family \u00b7 " + open + " of " + jobsAllowed() + " jobs \u00b7 nothing expires";
+  }
+  if (account.plan === "keeper") return "Keeper account \u00b7 nothing expires";
+  if (account.plan === "move" || account.plan === "pack"){
+    var d = daysLeft();
+    if (d === Infinity) return "Job open";
+    if (d <= 0) return "This job has closed";
+    if (d <= 45) return "Job closes in " + d + " day" + (d === 1 ? "" : "s");
+    return "Job open \u00b7 " + Math.round(d / 30) + " months left";
+  }
+  var left = roomLeft();
+  return "Free \u00b7 " + left + " of " + FREE_LIMIT + " item" + (left === 1 ? "" : "s") + " left";
+}
+function checkPlan(){
+  $("#jobline").innerHTML = "<b>" + esc(currentJob().name) + "</b><span class=\"chev\">\u25be</span><br>" + esc(planLine());
+  if ((account.plan === "move" || account.plan === "pack") && !account.convertOffered){
+    var d = daysLeft();
+    if (d !== Infinity && d <= 45 && d > -30) offerConvert(d);
+  }
+}
+
+/* ===================== jobs ===================== */
+function resetForJob(){
+  items = []; seq = 0; removed = {};
+  places = {sites: clonePlaces(DEFAULT_SITES)};
+  images = {}; chunks = {};
+  selected.clear(); expanded.clear();
+  filter = "all"; filterFrom = ""; filterTo = ""; search = ""; page = 0;
+  selectMode = false; boardMode = false;
+}
+async function openJob(id){
+  if (id === jobId) return;
+  await saveMeta(true);
+  jobId = id;
+  job = currentJob();
+  resetForJob();
+  try { var m = await store.get(metaKeyLocal()); if (m) merge(JSON.parse(m.value)); } catch(e){}
+  if (cloudOn()) merge(await readRemote());
+  try { await store.set("fm:lastjob", jobId); } catch(e){}
+  fillBulk();
+  render();
+  await loadChunks(visible());
+  toast("Opened " + currentJob().name);
+}
+async function createJob(name, client){
+  var open = jobs.filter(function(j){ return !j.closed && !j.archived; }).length;
+  if (open >= jobsAllowed()){
+    showPaywall();
+    return null;
+  }
+  await saveMeta(true);
+  var j = {id: uid("job"), key: randKey(), name: name || "New job", client: client || "",
+           createdAt: Date.now(), closed:false};
+  jobs.push(j);
+  await saveGlobal();
+  jobId = j.id;
+  job = j;
+  resetForJob();
+  await saveMeta(true);
+  try { await store.set("fm:lastjob", jobId); } catch(e){}
+  fillBulk();
+  render();
+  toast("Started " + j.name);
+  return j;
+}
+async function closeJob(id){
+  var j = jobs.filter(function(x){ return x.id === id; })[0];
+  if (!j) return;
+  j.closed = !j.closed;
+  await saveGlobal();
+  render();
+}
+async function jobStats(id){
+  var was = jobId, out = {items:0, todo:0};
+  try{
+    var key = id === "job1" ? "fm:meta" : "fm:meta:" + id;
+    var r = await store.get(key);
+    if (r){
+      var d = JSON.parse(r.value);
+      out.items = (d.items || []).length;
+    }
+  }catch(e){}
+  jobId = was;
+  return out;
 }
 
 /* ===================== photos ===================== */
 async function shrink(file){
-  var S = SIZES[sizeChoice] || SIZES.standard;
-  var bmp;
+  var S = SIZES[sizeChoice] || SIZES.standard, bmp;
   try { bmp = await createImageBitmap(file, {imageOrientation:"from-image"}); }
   catch(e){
     bmp = await new Promise(function(res, rej){
@@ -593,21 +1623,85 @@ async function shrink(file){
   if (bmp.close) bmp.close();
   return cv.toDataURL("image/jpeg", S.q);
 }
+function firstOrigin(){
+  var l = listOf("from").filter(function(p){ return p.id !== BUY_ID; });
+  return l.length ? l[0].id : "";
+}
 function newItem(where){
   seq += 1; dirty++;
-  return {id:"i" + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
-    n:seq, desc:"", from:where, to:"", room:"", qty:1, w:"", d:"", h:"", notes:"", ts:Date.now()};
+  return {id:uid("i"), n:seq, desc:"", from:where, fromKid:"", to:"", toKid:"",
+          qty:1, w:"", d:"", h:"", notes:"", kind:"", contents:"", extra:[], arrived:0,
+          flag:"", value:"", serial:"", ts:Date.now()};
+}
+function extrasOf(it){ return it.extra || (it.extra = []); }
+function extraSrc(x){ return x.url || images[x.id] || null; }
+async function attachExtra(id, file, tag){
+  var it = items.filter(function(i){ return i.id === id; })[0];
+  if (!it || !file || file.type.indexOf("image/") !== 0) return;
+  flag("Adding photo\u2026", false);
+  var data;
+  try { data = await shrink(file); } catch(e){ flag("Couldn't read that photo", false); return; }
+  var pid = uid("x");
+  var c = pickChunk(data.length + 40);
+  chunks[c][pid] = data; images[pid] = data;
+  extrasOf(it).push({id:pid, chunk:c, url:"", tag:tag || ""});
+  touch(it);
+  await saveChunk(c);
+  await saveMeta(true);
+  refreshCard(it);
+  flag("Saved", true);
+}
+async function attachLogo(file){
+  if (!file || file.type.indexOf("image/") !== 0) return;
+  var data;
+  try { data = await shrink(file); } catch(e){ return; }
+  var pid = uid("logo");
+  var c = pickChunk(data.length + 40);
+  chunks[c][pid] = data; images[pid] = data;
+  account.logoId = pid; account.logoChunk = c; account.logoUrl = "";
+  await saveChunk(c);
+  await saveGlobal();
+  flag("Logo saved", true);
+}
+async function duplicateItem(it){
+  var copy = Object.assign({}, it);
+  seq += 1;
+  copy.id = uid("i"); copy.n = seq; copy.ts = Date.now();
+  copy.extra = (it.extra || []).slice();
+  copy.arrived = 0;
+  copy.url = it.url || "";
+  if (!copy.url && images[it.id]){
+    var data = images[it.id];
+    var c = pickChunk(data.length + 40);
+    chunks[c][copy.id] = data; images[copy.id] = data; copy.chunk = c;
+    await saveChunk(c);
+  }
+  items.push(copy);
+  dirty++;
+  await saveMeta(true);
+  render();
+  toast("Copied as piece " + String(copy.n).padStart(2,"0"));
 }
 async function addFiles(files){
   var list = Array.prototype.filter.call(files, function(f){ return f.type.indexOf("image/") === 0; });
   if (!list.length) return;
+  var room = roomLeft();
+  if (room <= 0){ showPaywall(); return; }
+  if (list.length > room){
+    list = list.slice(0, room);
+    toast("Added " + room + " of them \u2014 that is the free limit", "See plans", showPaywall);
+  }
   flag("Adding " + list.length + "\u2026", false);
   if (cloudOn()) await pull(false);
   var touched = [], fresh = [];
   for (var i = 0; i < list.length; i++){
     var data;
     try { data = await shrink(list[i]); } catch(e){ continue; }
-    var it = newItem("Garage");
+    var it = newItem(quickFrom || firstOrigin());
+    if (quickTo){
+      var qp = quickTo.split("|");
+      it.to = qp[0]; it.toKid = qp[1] || "";
+    }
     var c = pickChunk(data.length + 40);
     chunks[c][it.id] = data; images[it.id] = data; it.chunk = c;
     if (touched.indexOf(c) < 0) touched.push(c);
@@ -616,11 +1710,6 @@ async function addFiles(files){
   }
   for (var j = 0; j < touched.length; j++) await saveChunk(touched[j]);
   if (cloudOn()){
-    flag("Uploading\u2026", false);
-    for (var k = 0; k < fresh.length; k++){
-      try { await pushPhoto(fresh[k]); }
-      catch(e){ warn("Photo upload failed (" + e.message + "). Check Settings — bucket name and upload policy."); break; }
-    }
   }
   await saveMeta(true);
   render();
@@ -636,9 +1725,22 @@ async function attachPhoto(id, file){
   chunks[c][id] = data; images[id] = data; it.chunk = c; it.url = "";
   touch(it);
   await saveChunk(c);
-  if (cloudOn()){
-    try { await pushPhoto(it); } catch(e){ warn("Photo upload failed (" + e.message + ")."); }
-  }
+  await saveMeta(true);
+  render();
+  flag("Saved", true);
+}
+async function attachPlacePhoto(ref, file){
+  var kid = findKid(ref.kind, ref.top, ref.kid);
+  if (!kid || !file || file.type.indexOf("image/") !== 0) return;
+  flag("Adding room photo\u2026", false);
+  var data;
+  try { data = await shrink(file); } catch(e){ flag("Couldn't read that photo", false); return; }
+  var pid = kid.photoId || uid("ph");
+  var c = pickChunk(data.length + 40);
+  chunks[c][pid] = data; images[pid] = data;
+  kid.photoId = pid; kid.chunk = c; kid.url = "";
+  await saveChunk(c);
+  dirty++;
   await saveMeta(true);
   render();
   flag("Saved", true);
@@ -646,20 +1748,26 @@ async function attachPhoto(id, file){
 
 /* ===================== derived ===================== */
 function stampFor(it){
+  if (it.from === BUY_ID && !it.to) return {cls:"buy", txt:"To buy"};
   if (!it.to) return null;
-  if (it.to === LAKE) return {cls:"lake", txt: it.room || "Lake house \u00b7 pick room"};
-  return {cls:TONE[it.to] || "hold", txt:it.to};
+  var top = findPlace("to", it.to);
+  if (!top) return null;
+  var needsKid = (top.kids||[]).length && !it.toKid;
+  return {cls:toneOf(it.to), txt: needsKid ? top.name + " \u00b7 pick room" : nameOf("to", it.to, it.toKid)};
 }
-function needsSort(it){ return !it.to || (it.to === LAKE && !it.room); }
+function needsSort(it){
+  if (!it.to) return true;
+  var top = findPlace("to", it.to);
+  return !!(top && (top.kids||[]).length && !it.toKid);
+}
 function counts(){
-  var c = {all:items.length, todo:0, lake:0, keep:0, sell:0, give:0, buy:0};
+  var c = {all:items.length, todo:0, buy:0, arrived:0, byDest:{}};
+  listOf("to").forEach(function(p){ c.byDest[p.id] = 0; });
   items.forEach(function(it){
     if (needsSort(it)) c.todo++;
-    if (it.to === LAKE) c.lake++;
-    if (it.to === KEEP) c.keep++;
-    if (it.to === SELL) c.sell++;
-    if (it.to === GIVE) c.give++;
-    if (it.from === BUY) c.buy++;
+    if (it.from === BUY_ID) c.buy++;
+    if (it.arrived) c.arrived++;
+    if (it.to && c.byDest[it.to] != null) c.byDest[it.to]++;
   });
   return c;
 }
@@ -667,40 +1775,77 @@ function visible(){
   var q = search.trim().toLowerCase();
   return items.filter(function(it){
     if (filter === "todo" && !needsSort(it)) return false;
-    if (filter === "lake" && it.to !== LAKE) return false;
-    if (filter === "keep" && it.to !== KEEP) return false;
-    if (filter === "sell" && it.to !== SELL) return false;
-    if (filter === "give" && it.to !== GIVE) return false;
-    if (filter === "buy" && it.from !== BUY) return false;
+    if (filter === "buy" && it.from !== BUY_ID) return false;
+    if (filterFrom && it.from !== filterFrom) return false;
+    if (filterTo){
+      var parts = filterTo.split("|");
+      if (it.to !== parts[0]) return false;
+      if (parts[1] && it.toKid !== parts[1]) return false;
+    }
     if (!q) return true;
     return (it.desc||"").toLowerCase().indexOf(q) >= 0
+        || (it.contents||"").toLowerCase().indexOf(q) >= 0
         || (it.notes||"").toLowerCase().indexOf(q) >= 0
-        || (it.room||"").toLowerCase().indexOf(q) >= 0
+        || nameOf("to", it.to, it.toKid).toLowerCase().indexOf(q) >= 0
         || String(it.n).padStart(2,"0").indexOf(q) >= 0;
   });
 }
-function byRoom(list){
+function byPlace(list){
   var g = [];
-  rooms.forEach(function(r){
-    var l = list.filter(function(i){ return i.to === LAKE && i.room === r; });
-    if (l.length) g.push(["Lake house \u2014 " + r, l]);
-  });
-  var nr = list.filter(function(i){ return i.to === LAKE && !i.room; });
-  if (nr.length) g.push(["Lake house \u2014 room not chosen", nr]);
-  [[KEEP,"Stays in Homewood storage"],[SELL,"To sell"],[GIVE,"To donate"]].forEach(function(pair){
-    var l = list.filter(function(i){ return i.to === pair[0]; });
-    if (l.length) g.push([pair[1], l]);
+  listOf("to").forEach(function(p){
+    if ((p.kids||[]).length){
+      p.kids.forEach(function(k){
+        var l = list.filter(function(i){ return i.to === p.id && i.toKid === k.id; });
+        if (l.length) g.push({head:p.name + " \u2014 " + k.name, kid:k, siteId:p.id, items:l});
+      });
+      var nr = list.filter(function(i){ return i.to === p.id && !i.toKid; });
+      if (nr.length) g.push({head:p.name + " \u2014 room not chosen", kid:null, siteId:p.id, items:nr});
+    } else {
+      var l2 = list.filter(function(i){ return i.to === p.id; });
+      if (l2.length) g.push({head:p.name, kid:null, siteId:p.id, items:l2});
+    }
   });
   var none = list.filter(function(i){ return !i.to; });
-  if (none.length) g.push(["Not sorted yet", none]);
+  if (none.length) g.push({head:"Not sorted yet", kid:null, siteId:"", items:none});
   return g;
 }
-function grouped(){ return byRoom(items); }
 function lineFor(i){
   var dims = (i.w || i.d || i.h) ? ((i.w||"?") + "\u00d7" + (i.d||"?") + "\u00d7" + (i.h||"?") + " in") : "";
-  return [i.from ? (i.from === BUY ? "to buy" : "from " + i.from) : "", dims,
-          Number(i.qty) > 1 ? "qty " + i.qty : "", i.notes || ""].filter(Boolean).join(" \u00b7 ");
+  var from = i.from === BUY_ID ? "to buy" : (i.from ? "from " + nameOf("from", i.from, i.fromKid) : "");
+  return [from, dims, Number(i.qty) > 1 ? "qty " + i.qty : "",
+          i.flag ? i.flag.toUpperCase() : "", i.notes || ""].filter(Boolean).join(" \u00b7 ");
 }
+/* Cubic feet from the sizes people already enter, plus a rough truck call. */
+function cuft(i){
+  var w = parseFloat(i.w), d = parseFloat(i.d), h = parseFloat(i.h);
+  if (!w || !d || !h) return 0;
+  return (w * d * h / 1728) * Math.max(1, Number(i.qty) || 1);
+}
+function volume(){
+  var total = 0, measured = 0, unmeasured = 0;
+  items.forEach(function(i){
+    var v = cuft(i);
+    if (v){ total += v; measured++; } else unmeasured++;
+  });
+  return {total:Math.round(total), measured:measured, unmeasured:unmeasured};
+}
+function truckFor(cf){
+  if (!cf) return "";
+  if (cf < 350) return "a cargo van or 10-foot truck";
+  if (cf < 700) return "a 15-foot truck";
+  if (cf < 1000) return "a 17 to 20-foot truck";
+  if (cf < 1400) return "a 26-foot truck";
+  return "more than one 26-foot truck, or a trailer";
+}
+function volumeLine(){
+  var v = volume();
+  if (!v.measured) return "Add sizes to a few pieces and this estimates your truck.";
+  var line = "About " + v.total.toLocaleString() + " cu ft from " + v.measured + " measured piece" +
+    (v.measured === 1 ? "" : "s") + " \u2014 roughly " + truckFor(v.total) + ".";
+  if (v.unmeasured) line += " " + v.unmeasured + " piece" + (v.unmeasured === 1 ? " has" : "s have") + " no size yet, so the real number is higher.";
+  return line;
+}
+
 function usage(){
   var bytes = 0, withPhoto = 0;
   items.forEach(function(it){
@@ -714,69 +1859,140 @@ function usage(){
 /* ===================== render ===================== */
 function renderRail(){
   var c = counts();
-  var defs = [["all","Everything",c.all],["todo","Needs sorting",c.todo],["lake","Lake house",c.lake],
-              ["keep",KEEP,c.keep],["sell",SELL,c.sell],["give",GIVE,c.give],["buy","To buy",c.buy]];
+  var defs = [["all","Everything",c.all],["todo","Needs sorting",c.todo]];
+  if (c.buy) defs.push(["buy","Need to buy",c.buy]);
   $("#rail").innerHTML = defs.map(function(d){
-    return '<button data-f="' + d[0] + '" aria-pressed="' + (filter===d[0]) + '">' + d[1] +
+    return '<button data-f="' + esc(d[0]) + '" aria-pressed="' + (filter===d[0]) + '">' + esc(d[1]) +
            '<span class="c">' + d[2] + '</span></button>';
   }).join("");
+  fillPickers();
+}
+function fillPickers(){
+  var fromCounts = {}, toCounts = {};
+  items.forEach(function(i){
+    if (i.from) fromCounts[i.from] = (fromCounts[i.from] || 0) + 1;
+    if (i.to){
+      toCounts[i.to] = (toCounts[i.to] || 0) + 1;
+      if (i.toKid) toCounts[i.to + "|" + i.toKid] = (toCounts[i.to + "|" + i.toKid] || 0) + 1;
+    }
+  });
+  var f = $("#fromSel");
+  f.innerHTML = '<option value="">Picking up \u2014 anywhere</option>' +
+    listOf("from").map(function(p){
+      return '<option value="' + esc(p.id) + '"' + (filterFrom === p.id ? " selected" : "") + '>At: ' +
+        esc(p.name) + " (" + (fromCounts[p.id] || 0) + ")</option>";
+    }).join("");
+  f.className = filterFrom ? "on" : "";
+
+  var t = $("#toSel");
+  var opts = '<option value="">Dropping off \u2014 anywhere</option>';
+  listOf("to").forEach(function(p){
+    opts += '<option value="' + esc(p.id) + '"' + (filterTo === p.id ? " selected" : "") + '>To: ' +
+      esc(p.name) + " (" + (toCounts[p.id] || 0) + ")</option>";
+    (p.kids||[]).forEach(function(k){
+      var v = p.id + "|" + k.id;
+      opts += '<option value="' + esc(v) + '"' + (filterTo === v ? " selected" : "") +
+        '>\u00a0\u00a0\u00a0' + esc(k.name) + " (" + (toCounts[v] || 0) + ")</option>";
+    });
+  });
+  t.innerHTML = opts;
+  t.className = filterTo ? "on" : "";
+  $("#viewRoomBtn").hidden = !filterTo;
 }
 function renderTally(){
   var c = counts(), t = $("#tally");
   if (!c.all){ t.innerHTML = "<span>Nothing logged yet</span>"; return; }
-  var line = "<small>" + c.lake + " lake house \u00b7 " + c.keep + " keep \u00b7 " + c.sell +
-             " sell \u00b7 " + c.give + " donate" + (c.buy ? " \u00b7 " + c.buy + " to buy" : "") + "</small>";
+  var bits = listOf("to").map(function(p){
+    return (c.byDest[p.id] || 0) + " " + p.name.toLowerCase();
+  });
+  if (c.buy) bits.push(c.buy + " to buy");
+  var waiting = queue.length
+    ? '<small class="risk">' + queue.length + " waiting to upload \u2014 sends when you have signal</small>" : "";
   var risk = (!cloudOn() && !storageOK && dirty)
     ? '<small class="risk">' + dirty + " change" + (dirty>1?"s":"") + " not in a file yet — tap Save file</small>" : "";
+  if (arriveMode){
+    var pool = visible();
+    var done = pool.filter(function(i){ return i.arrived; }).length;
+    var miss = pool.filter(function(i){ return !i.arrived; });
+    t.innerHTML = "<b>" + done + "</b> of <b>" + pool.length + "</b> checked off" +
+      (miss.length
+        ? "<small>Still missing: " + esc(miss.slice(0,8).map(function(i){
+            return String(i.n).padStart(2,"0") + " " + (i.desc || "");
+          }).join(" \u00b7 ")) + (miss.length > 8 ? " and " + (miss.length - 8) + " more" : "") + "</small>"
+        : "<small>Everything on this list is accounted for</small>");
+    return;
+  }
   t.innerHTML = (c.todo ? "<b>" + c.todo + "</b> of <b>" + c.all + "</b> still to sort"
-                        : "All <b>" + c.all + "</b> sorted") + line + risk;
+                        : "All <b>" + c.all + "</b> sorted") +
+                "<small>" + esc(bits.join(" \u00b7 ")) + "</small>" + waiting + risk;
 }
 function renderFoot(){
-  $("#footnote").textContent = cloudOn()
-    ? "Synced to your Supabase project — both phones see the same list."
-    : "Saving on this device only. Open Settings to connect Supabase and share with a second phone.";
+  if (viewOnly){
+    $("#footnote").innerHTML = "Shared list \u2014 view only. Nothing you tap here is saved.";
+    return;
+  }
+  $("#footnote").innerHTML = (cloudOn()
+    ? "Synced to your project \u2014 both phones see the same list."
+    : "Saving on this device only. Connect a project in Settings to share it.") +
+    '<br><span class="vow">Your photos stay in your camera roll, and Save file gives you everything in one file you keep.</span>';
 }
+function chipRow(kind, it){
+  var chosen = kind === "from" ? it.from : it.to;
+  var chosenKid = kind === "from" ? it.fromKid : it.toKid;
+  var attr = kind === "from" ? "data-from" : "data-to";
+  var kattr = kind === "from" ? "data-fromkid" : "data-tokid";
+  var html = '<div class="opts">' + listOf(kind).map(function(p){
+    var tone = kind === "to" ? toneOf(p.id) : (p.id === BUY_ID ? "buy" : "");
+    return '<button class="opt ' + tone + '" ' + attr + '="' + esc(p.id) + '" aria-pressed="' +
+           (chosen === p.id) + '">' + esc(p.name) + '</button>';
+  }).join("") + '</div>';
 
+  var top = findPlace(kind, chosen);
+  if (top && (top.kids||[]).length){
+    html += '<div class="kidwrap"><span class="lbl ' + (!chosenKid ? "needs" : "") + '">' +
+      esc(top.name) + (!chosenKid ? " — pick one" : "") + '</span><div class="opts">' +
+      top.kids.map(function(k){
+        var ph = kidPhoto(k);
+        return '<button class="opt kidopt" ' + kattr + '="' + esc(k.id) + '" aria-pressed="' +
+          (chosenKid === k.id) + '">' + (ph ? '<img src="' + ph + '" alt="">' : '') +
+          esc(k.name) + '</button>';
+      }).join("") + '</div></div>';
+  }
+  return html;
+}
 function card(it){
   var el = document.createElement("div");
-  var wish = it.from === BUY;
-  el.className = "card" + (selected.has(it.id) ? " picked" : "") + (wish ? " wish" : "");
+  var wish = it.from === BUY_ID;
+  el.className = "card" + (selected.has(it.id) ? " picked" : "") + (wish ? " wish" : "") +
+    (it.arrived && arriveMode ? " arrived" : "");
   el.dataset.id = it.id;
   var st = stampFor(it), src = srcFor(it), open = expanded.has(it.id);
 
   el.innerHTML =
     '<div class="shot' + (src ? '' : ' blank') + '">' +
       (src ? '<img src="' + src + '" alt="" loading="lazy">'
-           : '<button class="addphoto" data-addphoto="1">Tap to add a photo</button>') +
+           : '<button class="addphoto" data-addphoto="1"><span class="em">\ud83d\udce6</span>' +
+             '<span class="hint">Tap to add a photo</span></button>') +
       '<div class="tagno">' + String(it.n).padStart(2,"0") + '</div>' +
+      (it.from ? '<div class="nowban' + (wish ? " buy" : "") + '">' +
+        esc(wish ? "Need to buy" : nameOf("from", it.from, it.fromKid)) + '</div>' : '') +
       (Number(it.qty) > 1 ? '<div class="qtybadge">\u00d7' + it.qty + '</div>' : '') +
-      (selectMode
+      (arriveMode
+        ? '<button class="tick big ' + (it.arrived ? "on" : "") + '" data-arrive="1">' +
+            (it.arrived ? "\u2713" : "") + '</button>'
+        : selectMode
         ? '<button class="tick ' + (selected.has(it.id) ? "on" : "") + '" data-pick="1">' +
             (selected.has(it.id) ? "\u2713" : "") + '</button>'
         : '<button class="kill" title="Remove">\u00d7</button>') +
+      (it.arrived && !arriveMode ? '<div class="delivered">\u2713 Delivered</div>' : '') +
+      (it.flag && !it.arrived ? '<div class="flagtag ' + it.flag + '" style="right:44px">' + esc(it.flag) + '</div>' : '') +
       (st ? '<div class="stamp ' + st.cls + '">' + esc(st.txt) + '</div>' : '') +
-      (wish ? '<div class="buytag">To buy</div>' : '') +
+      (it.demo ? '<div class="demo">Example</div>' : '') +
     '</div>' +
     '<div class="body">' +
       '<textarea class="desc" rows="1" placeholder="What is it? e.g. walnut dresser, 6 drawers">' + esc(it.desc) + '</textarea>' +
-      '<div class="field"><span class="lbl">Now in</span><div class="opts">' +
-        FROM.map(function(f){
-          return '<button class="opt ' + (f === BUY ? "buy" : "") + '" data-from="' + esc(f) +
-                 '" aria-pressed="' + (it.from===f) + '">' + esc(f) + '</button>';
-        }).join("") +
-      '</div></div>' +
-      '<div class="field"><span class="lbl">Goes to</span><div class="opts">' +
-        TO.map(function(t){
-          return '<button class="opt ' + TONE[t] + '" data-to="' + esc(t) + '" aria-pressed="' + (it.to===t) + '">' + esc(t) + '</button>';
-        }).join("") +
-      '</div></div>' +
-      '<div class="field rooms ' + (it.to === LAKE ? "show" : "") + '">' +
-        '<span class="lbl ' + (it.to === LAKE && !it.room ? "needs" : "") + '">Room' +
-          (it.to === LAKE && !it.room ? " — still needed" : "") + '</span>' +
-        '<div class="opts">' + rooms.map(function(r){
-          return '<button class="opt" data-room="' + esc(r) + '" aria-pressed="' + (it.room===r) + '">' + esc(r) + '</button>';
-        }).join("") + '</div>' +
-      '</div>' +
+      '<div class="field"><span class="lbl">Now in</span>' + chipRow("from", it) + '</div>' +
+      '<div class="field"><span class="lbl">Goes to</span>' + chipRow("to", it) + '</div>' +
       '<button class="more" data-more="1">' + (open ? "\u2212" : "+") + ' Size, count, notes</button>' +
       '<div class="extra ' + (open ? "show" : "") + '">' +
         '<div class="field"><span class="lbl">Size in inches \u00b7 W \u00d7 D \u00d7 H</span><div class="dims">' +
@@ -784,11 +2000,45 @@ function card(it){
           '<input type="number" inputmode="decimal" data-dim="d" value="' + esc(it.d) + '" placeholder="D"><span>\u00d7</span>' +
           '<input type="number" inputmode="decimal" data-dim="h" value="' + esc(it.h) + '" placeholder="H">' +
         '</div></div>' +
+        '<div class="field"><span class="lbl">What is it</span><div class="opts">' +
+          '<button class="opt" data-kind="">Furniture</button>' +
+          '<button class="opt" data-kind="box">Box or carton</button>' +
+        '</div></div>' +
+        (it.kind === "box"
+          ? '<div class="field"><span class="lbl">What is in the box</span>' +
+            '<textarea class="contents" rows="2" placeholder="Coffee grinder, kettle, mugs">' + esc(it.contents) + '</textarea></div>'
+          : '') +
         '<div class="field"><span class="lbl">How many</span><div class="dims">' +
           '<input type="number" inputmode="numeric" min="1" data-qty="1" value="' + (it.qty||1) + '">' +
         '</div></div>' +
+        '<div class="field"><span class="lbl">Handling</span><div class="opts">' +
+          ["fragile","heavy","urgent"].map(function(f){
+            return '<button class="opt flag-' + f + '" data-flag="' + f + '" aria-pressed="' +
+              (it.flag === f) + '">' + f.charAt(0).toUpperCase() + f.slice(1) + '</button>';
+          }).join("") +
+        '</div></div>' +
+        '<div class="field"><span class="lbl">Value and serial \u00b7 for insurance</span><div class="dims">' +
+          '<input type="number" inputmode="decimal" data-fld2="value" value="' + esc(it.value) + '" placeholder="$ value">' +
+          '<input type="text" data-fld2="serial" value="' + esc(it.serial) + '" placeholder="Serial no.">' +
+        '</div></div>' +
         '<div class="field"><span class="lbl">Notes for the crew</span>' +
           '<textarea class="notes" rows="2" placeholder="Fragile \u00b7 disassemble \u00b7 two people">' + esc(it.notes) + '</textarea>' +
+        '</div>' +
+        '<div class="field"><span class="lbl">More photos</span>' +
+          '<div class="strip">' +
+            (it.extra||[]).map(function(x){
+              var src = extraSrc(x);
+              return '<span class="thumb' + (x.tag === "condition" ? " cond" : "") + '" data-thumb="' + esc(x.id) + '">' +
+                (src ? '<img src="' + src + '" alt="">' : '<span class="wait">\u2191</span>') +
+                (x.tag === "condition" ? '<b>Condition</b>' : '') +
+                '<button class="rm" data-rmx="' + esc(x.id) + '">\u00d7</button></span>';
+            }).join("") +
+            '<button class="opt" data-xadd="plain">+ Photo</button>' +
+            '<button class="opt" data-xadd="condition">+ Condition</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="row2">' +
+          '<button class="opt" data-dupe="1">Duplicate this piece</button>' +
         '</div>' +
       '</div>' +
     '</div>';
@@ -796,8 +2046,34 @@ function card(it){
   function grow(t){ t.style.height = "auto"; t.style.height = t.scrollHeight + "px"; }
   var ta = el.querySelector(".desc");
   requestAnimationFrame(function(){ grow(ta); });
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SR){
+    var mic = document.createElement("button");
+    mic.className = "mic";
+    mic.type = "button";
+    mic.textContent = "\ud83c\udf99";
+    mic.title = "Dictate a description";
+    ta.parentNode.insertBefore(mic, ta.nextSibling);
+    var rec = null;
+    mic.addEventListener("click", function(ev){
+      ev.stopPropagation();
+      if (rec){ rec.stop(); rec = null; mic.className = "mic"; return; }
+      rec = new SR();
+      rec.lang = "en-US";
+      rec.interimResults = false;
+      mic.className = "mic on";
+      rec.onresult = function(r){
+        var said = r.results[0][0].transcript;
+        ta.value = ta.value ? ta.value + " " + said : said;
+        it.desc = ta.value;
+        touch(it); grow(ta); saveMeta();
+      };
+      rec.onend = function(){ rec = null; mic.className = "mic"; };
+      rec.onerror = function(){ rec = null; mic.className = "mic"; };
+      try { rec.start(); } catch(e){ rec = null; mic.className = "mic"; }
+    });
+  }
   ta.addEventListener("input", function(){ it.desc = ta.value; touch(it); grow(ta); saveMeta(); });
-
   var nt = el.querySelector(".notes");
   if (nt){
     requestAnimationFrame(function(){ grow(nt); });
@@ -806,6 +2082,17 @@ function card(it){
   Array.prototype.forEach.call(el.querySelectorAll("[data-dim]"), function(inp){
     inp.addEventListener("change", function(){ it[inp.dataset.dim] = inp.value; touch(it); saveMeta(); });
   });
+  Array.prototype.forEach.call(el.querySelectorAll("[data-fld2]"), function(inp){
+    inp.addEventListener("change", function(){ it[inp.dataset.fld2] = inp.value.trim(); touch(it); saveMeta(); });
+  });
+  Array.prototype.forEach.call(el.querySelectorAll("[data-kind]"), function(b){
+    if (b.dataset.kind === (it.kind || "")) b.setAttribute("aria-pressed","true");
+  });
+  var ct = el.querySelector(".contents");
+  if (ct){
+    requestAnimationFrame(function(){ grow(ct); });
+    ct.addEventListener("input", function(){ it.contents = ct.value; touch(it); grow(ct); saveMeta(); });
+  }
   var q = el.querySelector("[data-qty]");
   if (q) q.addEventListener("change", function(){
     it.qty = Math.max(1, parseInt(q.value || "1", 10));
@@ -813,7 +2100,6 @@ function card(it){
   });
   return el;
 }
-
 function pageSlice(){
   var all = visible();
   var pages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
@@ -832,18 +2118,43 @@ function renderPager(all, pages){
     '<span>' + first + '\u2013' + last + ' of ' + all.length + '</span>' +
     '<button class="btn ghost sm" data-pg="next"' + (page >= pages - 1 ? " disabled" : "") + '>Next \u203a</button>';
 }
+function loadGroups(list){
+  /* Last stop is loaded first, so the first stop comes off the tail of the truck. */
+  var g = byPlace(list).filter(function(x){ return x.head !== "Not sorted yet"; });
+  g.sort(function(a,b){ return dropOrder(b.siteId) - dropOrder(a.siteId); });
+  var rest = byPlace(list).filter(function(x){ return x.head === "Not sorted yet"; });
+  return g.concat(rest);
+}
 function renderBoard(){
   var list = visible();
-  $("#board").innerHTML = byRoom(list).map(function(g){
-    return '<div class="board-group"><div class="board-head">' + esc(g[0]) +
-      '<span>' + g[1].length + '</span></div><div class="board">' +
-      g[1].map(function(i){
-        return '<button class="tile' + (i.from === BUY ? " wish" : "") + '" data-open="' + i.id + '">' +
+  var groups = filterFrom ? loadGroups(list) : byPlace(list);
+  if (items.length && !list.length){
+    $("#board").innerHTML = '<div class="nomatch">Nothing matches the filters you have set.' +
+      '<button class="btn ghost sm" id="clearFilters2">Clear filters</button></div>';
+    var cf2 = $("#clearFilters2");
+    if (cf2) cf2.addEventListener("click", function(){
+      filter = "all"; filterFrom = ""; filterTo = ""; search = "";
+      $("#find").value = ""; page = 0; render();
+    });
+    return;
+  }
+  $("#board").innerHTML = groups.map(function(g, gi){
+    var ph = kidPhoto(g.kid);
+    return '<div class="board-group"><div class="board-head">' +
+      (ph ? '<img src="' + ph + '" alt="">' : '') +
+      (filterFrom && g.head !== "Not sorted yet" ? '<b class="ord">Load ' + (gi + 1) + '</b> ' : '') +
+      esc(g.head) +
+      '<span class="n">' + g.items.length + '</span>' +
+      (g.siteId ? '<span class="eye" data-view="' + esc(g.siteId + "|" + (g.kid ? g.kid.id : "")) + '">View room</span>' : '') +
+      '</div><div class="board">' +
+      g.items.map(function(i){
+        return '<button class="tile' + (i.from === BUY_ID ? " wish" : "") + '" data-open="' + i.id + '">' +
           (srcFor(i) ? '<img src="' + srcFor(i) + '" alt="" loading="lazy">'
-                     : '<div class="blanktile">' + esc(i.desc || "no photo yet") + '</div>') +
+                     : '<div class="blanktile"><span class="em">\ud83d\udce6</span>' +
+                       esc(i.desc || "no photo yet") + '</div>') +
           '<figcaption><span class="cap-n">' + String(i.n).padStart(2,"0") + '</span> ' +
             esc(i.desc || "\u2014") +
-            (i.from === BUY ? '<span class="cap-buy">To buy</span>' : '') +
+            (i.from === BUY_ID ? '<span class="cap-buy">To buy</span>' : '') +
           '</figcaption></button>';
       }).join("") + '</div></div>';
   }).join("");
@@ -858,25 +2169,54 @@ function render(){
     $("#pager").hidden = true;
     $("#bulk").hidden = true;
     $("#bar").hidden = false;
+    $("#boardBtn").textContent = "Card view";
+    $("#arriveBtn").textContent = arriveMode ? "Done checking" : "Check off";
     renderBoard();
+    checkPlan();
     return;
   }
   $("#board").hidden = true;
   $("#grid").hidden = false;
   var sl = pageSlice();
   grid.innerHTML = "";
+  if (items.length && !sl.all.length){
+    var why = search
+      ? 'Nothing matches \u201c' + esc(search) + '\u201d'
+      : 'Nothing to show here';
+    if (filterFrom || filterTo || filter !== "all") why += ' within the filters you have set';
+    grid.innerHTML = '<div class="nomatch">' + why + '.' +
+      '<button class="btn ghost sm" id="clearFilters">Clear filters</button></div>';
+    var cf = $("#clearFilters");
+    if (cf) cf.addEventListener("click", function(){
+      filter = "all"; filterFrom = ""; filterTo = ""; search = "";
+      $("#find").value = "";
+      page = 0;
+      render();
+    });
+  }
   sl.shown.forEach(function(it){ grid.appendChild(card(it)); });
   renderPager(sl.all, sl.pages);
   loadChunks(sl.shown);
   $("#bulk").hidden = !selectMode;
   $("#bar").hidden = selectMode;
   $("#bulkCount").textContent = selected.size + " selected";
+  if (viewOnly){
+    ["addTop","moreBtn","jobsBtn","settingsBtn","arriveBtn"].forEach(function(id){
+      var el = $("#" + id); if (el) el.hidden = true;
+    });
+  }
+  $("#boardBtn").textContent = boardMode ? "Card view" : "Board view";
+  $("#arriveBtn").textContent = arriveMode ? "Done checking" : "Check off";
+  var active = (filter !== "all" ? 1 : 0) + (filterFrom ? 1 : 0) + (filterTo ? 1 : 0);
+  $("#filterBtn").innerHTML = "Filter" + (active ? '<span class="dot"></span>' : "");
+  if (active && $("#pickrow").hidden){ $("#pickrow").hidden = false; $("#rail").hidden = false; }
+  checkPlan();
 }
 function paintImages(){
   Array.prototype.forEach.call(document.querySelectorAll(".tile[data-open]"), function(t){
     var it = items.filter(function(i){ return i.id === t.dataset.open; })[0];
     var blank = t.querySelector(".blanktile");
-    if (it && srcFor(it) && blank && images[it.id]){
+    if (it && srcFor(it) && blank){
       var img = new Image();
       img.src = srcFor(it); img.alt = "";
       blank.replaceWith(img);
@@ -884,7 +2224,7 @@ function paintImages(){
   });
   Array.prototype.forEach.call(document.querySelectorAll(".card"), function(el){
     var it = items.filter(function(i){ return i.id === el.dataset.id; })[0];
-    if (it && images[it.id] && !el.querySelector(".shot img")){
+    if (it && srcFor(it) && !el.querySelector(".shot img")){
       var shot = el.querySelector(".shot");
       var ph = shot.querySelector(".addphoto");
       if (ph) ph.remove();
@@ -902,13 +2242,63 @@ function refreshCard(it){
   renderRail(); renderTally();
 }
 
+/* A clean look at one room: the room itself, then just the pieces.
+   No banners, no buttons, nothing to sort — for judging how it goes together. */
+function openRoomView(siteId, kidId){
+  var site = findPlace("to", siteId);
+  if (!site) return;
+  var kid = kidId ? findKid("to", siteId, kidId) : null;
+  var mine = items.filter(function(i){
+    return i.to === siteId && (kidId ? i.toKid === kidId : !i.toKid || !(site.kids||[]).length);
+  });
+  var withPhoto = mine.filter(function(i){ return srcFor(i); });
+  var without = mine.filter(function(i){ return !srcFor(i); });
+  var hero = kidPhoto(kid);
+
+  var el = document.createElement("div");
+  el.className = "roomview";
+  el.innerHTML = '<div class="rv-in">' +
+    '<div class="rv-top"><div><h2>' + esc(kid ? kid.name : site.name) + '</h2>' +
+      '<div class="sub">' + (kid ? esc(site.name) + " \u00b7 " : "") + mine.length +
+      ' piece' + (mine.length === 1 ? "" : "s") + '</div></div>' +
+      '<button class="btn" data-close="1">Done</button></div>' +
+    (hero ? '<img class="rv-hero" src="' + hero + '" alt="">' : '') +
+    (withPhoto.length
+      ? '<div class="rv-grid">' + withPhoto.map(function(i){
+          return '<button data-piece="' + i.id + '"><img src="' + srcFor(i) + '" alt=""></button>';
+        }).join("") + '</div>'
+      : '<div class="rv-empty">No photos in this room yet. Add pieces, or add a photo to the ones already here.</div>') +
+    (without.length
+      ? '<div class="rv-none">Also here, no photo yet: ' + without.map(function(i){
+          return '<b>' + String(i.n).padStart(2,"0") + '</b> ' + esc(i.desc || "\u2014");
+        }).join(" \u00b7 ") + '</div>'
+      : '') +
+    '</div>';
+
+  el.addEventListener("click", function(e){
+    if (e.target.closest("[data-close]") || e.target === el){ el.remove(); return; }
+    var b = e.target.closest("[data-piece]");
+    if (!b) return;
+    var it = items.filter(function(i){ return i.id === b.dataset.piece; })[0];
+    if (!it) return;
+    openPiece(it);
+  });
+  document.body.appendChild(el);
+}
+
 /* ===================== interaction ===================== */
 function cardClick(e){
+  if (viewOnly) return;          /* look, do not touch */
   var el = e.target.closest(".card"); if (!el) return;
   var it = items.filter(function(i){ return i.id === el.dataset.id; })[0];
   if (!it) return;
 
   if (e.target.closest("[data-addphoto]")){ pendingPhotoFor = it.id; $("#picker").click(); return; }
+  if (e.target.closest("[data-arrive]")){
+    it.arrived = it.arrived ? 0 : Date.now();
+    touch(it); refreshCard(it); saveMeta();
+    return;
+  }
   if (e.target.closest("[data-pick]")){
     selected.has(it.id) ? selected.delete(it.id) : selected.add(it.id);
     refreshCard(it);
@@ -916,25 +2306,59 @@ function cardClick(e){
     return;
   }
   if (e.target.closest(".kill")){ removeItems([it]); return; }
+  var xa = e.target.closest("[data-xadd]");
+  if (xa){
+    pendingPhotoFor = null;
+    pendingExtra = {id:it.id, tag: xa.dataset.xadd === "condition" ? "condition" : ""};
+    $("#picker").click();
+    return;
+  }
+  var rmx = e.target.closest("[data-rmx]");
+  if (rmx){
+    it.extra = extrasOf(it).filter(function(x){ return x.id !== rmx.dataset.rmx; });
+    touch(it); refreshCard(it); saveMeta();
+    return;
+  }
+  var fl = e.target.closest("[data-flag]");
+  if (fl){
+    it.flag = (it.flag === fl.dataset.flag) ? "" : fl.dataset.flag;
+    touch(it); refreshCard(it); saveMeta();
+    return;
+  }
+  var kd = e.target.closest("[data-kind]");
+  if (kd){
+    it.kind = kd.dataset.kind;
+    touch(it); refreshCard(it); saveMeta();
+    return;
+  }
+  if (e.target.closest("[data-dupe]")){ duplicateItem(it); return; }
   if (e.target.closest("[data-more]")){
     expanded.has(it.id) ? expanded.delete(it.id) : expanded.add(it.id);
     refreshCard(it);
     return;
   }
   var f = e.target.closest("[data-from]");
-  if (f){ it.from = f.dataset.from; touch(it); refreshCard(it); saveMeta(); return; }
+  if (f){
+    it.from = (it.from === f.dataset.from) ? "" : f.dataset.from;
+    it.fromKid = "";
+    touch(it); refreshCard(it); saveMeta(); return;
+  }
+  var fk = e.target.closest("[data-fromkid]");
+  if (fk){
+    it.fromKid = (it.fromKid === fk.dataset.fromkid) ? "" : fk.dataset.fromkid;
+    touch(it); refreshCard(it); saveMeta(); return;
+  }
   var t = e.target.closest("[data-to]");
   if (t){
     it.to = (it.to === t.dataset.to) ? "" : t.dataset.to;
-    if (it.to !== LAKE) it.room = "";
-    touch(it); refreshCard(it); saveMeta();
-    return;
+    it.toKid = "";
+    touch(it); refreshCard(it); saveMeta(); return;
   }
-  var r = e.target.closest("[data-room]");
-  if (r){
-    it.room = (it.room === r.dataset.room) ? "" : r.dataset.room;
+  var tk = e.target.closest("[data-tokid]");
+  if (tk){
+    it.toKid = (it.toKid === tk.dataset.tokid) ? "" : tk.dataset.tokid;
     touch(it); refreshCard(it); saveMeta();
-    if (filter === "todo" && it.room) setTimeout(render, 350);
+    if (filter === "todo" && it.toKid) setTimeout(render, 350);
   }
 }
 grid.addEventListener("click", cardClick);
@@ -946,7 +2370,6 @@ function removeItems(list){
     removed[it.id] = Date.now();
     if (it.chunk != null && chunks[it.chunk]){ delete chunks[it.chunk][it.id]; saveChunk(it.chunk); }
     delete images[it.id];
-    if (cloudOn() && it.url){ cloudDelete(it.id + ".jpg"); it.url = ""; }
   });
   var ids = list.map(function(i){ return i.id; });
   items = items.filter(function(i){ return ids.indexOf(i.id) < 0; });
@@ -965,7 +2388,6 @@ function undoRemove(){
       var c = pickChunk(d.length + 40);
       chunks[c][it.id] = d; images[it.id] = d; it.chunk = c;
       saveChunk(c);
-      if (cloudOn()){ it.url = ""; pushPhoto(it).catch(function(){}); }
     }
   });
   items.sort(function(a,b){ return (a.n||0) - (b.n||0); });
@@ -977,6 +2399,13 @@ $("#rail").addEventListener("click", function(e){
   var b = e.target.closest("button[data-f]"); if (!b) return;
   filter = b.dataset.f; page = 0; render();
 });
+$("#fromSel").addEventListener("change", function(e){ filterFrom = e.target.value; page = 0; render(); });
+$("#toSel").addEventListener("change", function(e){ filterTo = e.target.value; page = 0; render(); });
+$("#viewRoomBtn").addEventListener("click", function(){
+  if (!filterTo) return;
+  var parts = filterTo.split("|");
+  openRoomView(parts[0], parts[1] || "");
+});
 $("#find").addEventListener("input", function(e){ search = e.target.value; page = 0; render(); });
 $("#pager").addEventListener("click", function(e){
   var b = e.target.closest("[data-pg]"); if (!b || b.disabled) return;
@@ -984,7 +2413,29 @@ $("#pager").addEventListener("click", function(e){
   render();
   window.scrollTo({top:0, behavior:"smooth"});
 });
+function openPiece(it){
+  var sheet = openSheet('<h2>Piece ' + String(it.n).padStart(2,"0") + '</h2><div id="oneCard"></div>',
+    function(sh){ sh.addEventListener("click", cardClick); });
+  sheet.querySelector("#oneCard").appendChild(card(it));
+  sheet.addEventListener("sheetclosed", function(){ render(); });
+  return sheet;
+}
 $("#board").addEventListener("click", function(e){
+  var v = e.target.closest("[data-view]");
+  if (v){
+    var parts = v.dataset.view.split("|");
+    openRoomView(parts[0], parts[1] || "");
+    return;
+  }
+  var head = e.target.closest(".board-head");
+  if (head){
+    var eye = head.querySelector("[data-view]");
+    if (eye){
+      var pp = eye.dataset.view.split("|");
+      openRoomView(pp[0], pp[1] || "");
+    }
+    return;
+  }
   var t = e.target.closest("[data-open]"); if (!t) return;
   var it = items.filter(function(i){ return i.id === t.dataset.open; })[0];
   if (!it) return;
@@ -993,37 +2444,94 @@ $("#board").addEventListener("click", function(e){
   sheet.querySelector("#oneCard").appendChild(card(it));
   sheet.addEventListener("sheetclosed", function(){ render(); });
 });
-$("#boardBtn").addEventListener("click", function(){
+function toggleBoard(){
   boardMode = !boardMode;
-  $("#boardBtn").textContent = boardMode ? "Card view" : "Board view";
-  if (boardMode && selectMode){
-    selectMode = false; selected.clear();
-    $("#selectBtn").textContent = "Select";
-  }
+  if (boardMode){ selectMode = false; selected.clear(); arriveMode = false; }
   render();
   window.scrollTo({top:0, behavior:"smooth"});
+}
+$("#boardBtn").addEventListener("click", toggleBoard);
+$("#moreBtn").addEventListener("click", function(){
+  openSheet(
+    '<h2>More</h2>' +
+    '<div class="row"><button class="btn ghost" id="mSelect">Select several at once</button></div>' +
+    '<div class="row"><button class="btn ghost" id="mItem">Add an item with no photo</button></div>' +
+    '<div class="row"><button class="btn ghost" id="mQuick">Quick capture a room</button></div>' +
+    '<div class="row"><button class="btn ghost" id="mRefresh">Check for changes from the other phone</button></div>',
+    function(sh){
+      sh.querySelector("#mSelect").addEventListener("click", function(){ (sh.shut ? sh.shut() : sh.remove()); toggleSelect(); });
+      sh.querySelector("#mItem").addEventListener("click", function(){ (sh.shut ? sh.shut() : sh.remove()); addBlankItem(); });
+      sh.querySelector("#mQuick").addEventListener("click", function(){ (sh.shut ? sh.shut() : sh.remove()); openQuick(); });
+      sh.querySelector("#mRefresh").addEventListener("click", function(){ (sh.shut ? sh.shut() : sh.remove()); pull(true); });
+    });
 });
-$("#addItemBtn").addEventListener("click", async function(){
-  var it = newItem(BUY);
+$("#filterBtn").addEventListener("click", function(){
+  var open = !$("#pickrow").hidden;
+  $("#pickrow").hidden = open;
+  $("#rail").hidden = open;
+});
+async function addBlankItem(){
+  if (roomLeft() <= 0){ showPaywall(); return; }
+  var it = newItem(BUY_ID);
   items.push(it);
   if (boardMode){ boardMode = false; $("#boardBtn").textContent = "Board view"; }
   filter = "buy"; search = ""; $("#find").value = "";
-  page = Math.floor((visible().length - 1) / PAGE_SIZE);
+  page = Math.floor(Math.max(0, visible().length - 1) / PAGE_SIZE);
   render();
   await saveMeta(true);
   var d = document.querySelector('.card[data-id="' + it.id + '"] .desc');
   if (d){ d.scrollIntoView({block:"center", behavior:"smooth"}); d.focus(); }
-});
-$("#selectBtn").addEventListener("click", function(){
+}
+function openQuick(){
+  openSheet(
+    '<h2>Quick capture</h2>' +
+    '<p>Walk a room and photograph everything. Each shot lands already assigned, so you can fill in names and sizes later from the sofa.</p>' +
+    '<label>Picking up at</label><select id="qcFrom"></select>' +
+    '<label>Going to</label><select id="qcTo"></select>' +
+    '<div class="row"><button class="btn" id="qcGo">Start shooting</button></div>' +
+    (quickFrom || quickTo
+      ? '<div class="status ok">Quick capture is on. New photos go to ' +
+        esc(quickTo ? nameOf("to", quickTo.split("|")[0], quickTo.split("|")[1]) : "no destination") + '.' +
+        '</div><div class="row"><button class="btn ghost" id="qcOff">Turn it off</button></div>'
+      : ''),
+    function(sh){
+      var f = sh.querySelector("#qcFrom"), t = sh.querySelector("#qcTo");
+      f.innerHTML = listOf("from").map(function(p){
+        return '<option value="' + esc(p.id) + '"' + (quickFrom === p.id ? " selected" : "") + '>' + esc(p.name) + '</option>';
+      }).join("");
+      t.innerHTML = '<option value="">Decide later</option>' + everyLeaf("to").map(function(l){
+        var v = l.top.id + "|" + (l.kid ? l.kid.id : "");
+        return '<option value="' + esc(v) + '"' + (quickTo === v ? " selected" : "") + '>' +
+          esc(l.kid ? l.top.name + " \u2014 " + l.kid.name : l.top.name) + '</option>';
+      }).join("");
+      sh.querySelector("#qcGo").addEventListener("click", function(){
+        quickFrom = f.value; quickTo = t.value;
+        (sh.shut ? sh.shut() : sh.remove());
+        render();
+        $("#picker").click();
+      });
+      var off = sh.querySelector("#qcOff");
+      if (off) off.addEventListener("click", function(){
+        quickFrom = ""; quickTo = "";
+        (sh.shut ? sh.shut() : sh.remove());
+        toast("Quick capture off");
+      });
+    });
+}
+function toggleArrive(){
+  arriveMode = !arriveMode;
+  if (arriveMode){ selectMode = false; selected.clear(); boardMode = false; }
+  render();
+}
+$("#arriveBtn").addEventListener("click", toggleArrive);
+function toggleSelect(){
   selectMode = !selectMode;
   selected.clear();
-  $("#selectBtn").textContent = selectMode ? "Cancel" : "Select";
-  if (selectMode && boardMode){ boardMode = false; $("#boardBtn").textContent = "Board view"; }
+  if (selectMode){ boardMode = false; arriveMode = false; }
   render();
-});
+}
 $("#bulkDone").addEventListener("click", function(){
   selectMode = false; selected.clear();
-  $("#selectBtn").textContent = "Select";
   render();
 });
 $("#bulkDelete").addEventListener("click", function(){
@@ -1038,9 +2546,12 @@ $("#bulkApply").addEventListener("click", function(){
   var list = items.filter(function(i){ return selected.has(i.id); });
   if (!v || !list.length) return;
   list.forEach(function(it){
-    if (v.indexOf("room:") === 0){ it.to = LAKE; it.room = v.slice(5); }
-    else if (v === "buy"){ it.from = BUY; }
-    else { it.to = v; it.room = ""; }
+    if (v === "buy"){ it.from = BUY_ID; it.fromKid = ""; }
+    else {
+      var parts = v.split("|");
+      it.to = parts[0];
+      it.toKid = parts[1] || "";
+    }
     touch(it);
   });
   selected.clear();
@@ -1049,75 +2560,239 @@ $("#bulkApply").addEventListener("click", function(){
 });
 function fillBulk(){
   $("#bulkTo").innerHTML = '<option value="">Send selected to\u2026</option>'
-    + rooms.map(function(r){ return '<option value="room:' + esc(r) + '">Lake house \u2014 ' + esc(r) + '</option>'; }).join("")
-    + [KEEP, SELL, GIVE].map(function(d){ return '<option value="' + esc(d) + '">' + esc(d) + '</option>'; }).join("")
+    + everyLeaf("to").map(function(l){
+        var label = l.kid ? l.top.name + " \u2014 " + l.kid.name : l.top.name;
+        return '<option value="' + esc(l.top.id + "|" + (l.kid ? l.kid.id : "")) + '">' + esc(label) + '</option>';
+      }).join("")
     + '<option value="buy">Mark as To buy</option>';
 }
-
 $("#picker").addEventListener("change", function(e){
-  var files = e.target.files;
-  var target = pendingPhotoFor;
-  pendingPhotoFor = null;
-  var list = Array.prototype.slice.call(files);
+  var list = Array.prototype.slice.call(e.target.files);
+  var target = pendingPhotoFor, place = pendingPlace, ex = pendingExtra, lg = pendingLogo;
+  pendingPhotoFor = null; pendingPlace = null; pendingExtra = null; pendingLogo = false;
   e.target.value = "";
-  if (target) attachPhoto(target, list[0]);
+  if (lg) attachLogo(list[0]);
+  else if (ex) attachExtra(ex.id, list[0], ex.tag);
+  else if (place) attachPlacePhoto(place, list[0]);
+  else if (target) attachPhoto(target, list[0]);
   else addFiles(list);
 });
 $("#addTop").addEventListener("click", function(){ $("#picker").click(); });
 $("#addEmpty").addEventListener("click", function(){ $("#picker").click(); });
-$("#refreshBtn").addEventListener("click", function(){ pull(true); });
+
 
 /* ===================== printing ===================== */
 function printSheet(withPhotos){
-  $("#printout").innerHTML = grouped().map(function(g){
-    var head = g[0], list = g[1];
-    return '<div class="p-group"><div class="p-head">' + esc(head) +
-      '<span>' + list.length + ' piece' + (list.length>1?"s":"") + '</span></div>' +
+  var v = volume();
+  var head = '<div class="p-group"><div class="p-head">' + esc(currentJob().name) +
+    '<span class="n">' + items.length + ' piece' + (items.length === 1 ? "" : "s") + '</span></div>' +
+    (account.logoUrl || images[account.logoId] ? '<img class="p-logo" src="' +
+        (account.logoUrl || images[account.logoId]) + '">' : '') +
+    '<div class="p-addr">' + esc(volumeLine()) + '</div>' +
+    '<div class="p-addr">Printed ' + new Date().toLocaleString() + '</div></div>';
+  $("#printout").innerHTML = head + byPlace(items).map(function(g){
+    var ph = kidPhoto(g.kid);
+    return '<div class="p-group"><div class="p-head">' +
+      (withPhotos && ph ? '<img src="' + ph + '">' : '') + esc(g.head) +
+      '<span class="n">' + g.items.length + ' piece' + (g.items.length>1?"s":"") + '</span></div>' +
       '<div class="p-grid ' + (withPhotos ? "" : "nophoto") + '">' +
-      list.map(function(i){
+      g.items.map(function(i){
         return '<div class="p-item">' +
           (withPhotos && srcFor(i) ? '<img src="' + srcFor(i) + '">' : '') +
           '<b>' + String(i.n).padStart(2,"0") + '</b> ' + esc(i.desc || "\u2014") +
           '<div class="sub">' + esc(lineFor(i)) + '</div></div>';
       }).join("") + '</div></div>';
+  }).join("") + signBlock();
+  window.print();
+}
+function printLoad(){
+  var sites = listOf("from").filter(function(sIt){
+    return items.some(function(i){ return i.from === sIt.id; });
+  });
+  $("#printout").innerHTML = sites.map(function(site){
+    var mine = items.filter(function(i){ return i.from === site.id; });
+    var groups = loadGroups(mine);
+    return '<div class="p-group"><div class="p-head">Load at ' + esc(site.name) +
+      '<span class="n">' + mine.length + ' piece' + (mine.length>1?"s":"") + '</span></div>' +
+      (site.address ? '<div class="p-addr">' + esc(site.address) + '</div>' : '') +
+      (site.notes ? '<div class="p-addr">' + esc(site.notes) + '</div>' : '') +
+      '<div class="p-load">' + groups.map(function(g, i){
+        return '<div class="p-step"><h4><span>' + (i + 1) + '</span>' + esc(g.head) +
+          '<em>' + g.items.length + ' piece' + (g.items.length>1?"s":"") + '</em></h4>' +
+          '<div class="p-nums">' + g.items.map(function(x){
+            return String(x.n).padStart(2,"0") + " " + esc(x.desc || "\u2014");
+          }).join(" \u00b7 ") + '</div></div>';
+      }).join("") + '</div>' +
+      '<div class="p-foot">Loaded in this order so the first stop comes off the back of the truck.</div></div>';
   }).join("");
   window.print();
 }
+function printMissing(){
+  var miss = items.filter(function(i){ return !i.arrived; });
+  var sites = {};
+  miss.forEach(function(i){
+    var key = i.from || "unset";
+    (sites[key] = sites[key] || []).push(i);
+  });
+  var done = items.length - miss.length;
+  $("#printout").innerHTML = '<div class="p-group"><div class="p-head">Not yet delivered' +
+    '<span class="n">' + miss.length + ' of ' + items.length + '</span></div>' +
+    '<div class="p-addr">' + done + ' checked off \u00b7 ' + currentJob().name + ' \u00b7 ' +
+      new Date().toLocaleString() + '</div>' +
+    Object.keys(sites).map(function(k){
+      var nm = k === "unset" ? "No pickup site set" : nameOf("from", k);
+      return '<div class="p-step"><h4>' + esc(nm) + '<em>' + sites[k].length + '</em></h4>' +
+        '<div class="p-nums">' + sites[k].map(function(i){
+          return String(i.n).padStart(2,"0") + " " + esc(i.desc || "\u2014") +
+                 (i.to ? " \u2192 " + esc(nameOf("to", i.to, i.toKid)) : "");
+        }).join("<br>") + '</div></div>';
+    }).join("") + '</div>';
+  window.print();
+}
+var qrLib = null;
+function loadQR(){
+  if (qrLib) return Promise.resolve(qrLib);
+  if (window.qrcode){ qrLib = window.qrcode; return Promise.resolve(qrLib); }
+  /* Never let a missing CDN stop a print. Give it a moment, then carry on without QR. */
+  return new Promise(function(res){
+    var settled = false;
+    function finish(v){ if (!settled){ settled = true; res(v); } }
+    setTimeout(function(){ finish(null); }, 2500);
+    var sc = document.createElement("script");
+    sc.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js";
+    sc.onload = function(){ qrLib = window.qrcode || null; finish(qrLib); };
+    sc.onerror = function(){ finish(null); };
+    document.head.appendChild(sc);
+  });
+}
+function itemLink(id){
+  return location.origin + location.pathname + "#job=" + encodeURIComponent(jobId) + "&item=" + encodeURIComponent(id);
+}
+function qrTag(id){
+  if (!qrLib) return "";
+  try{
+    var q = qrLib(0, "M");
+    q.addData(itemLink(id));
+    q.make();
+    return '<img class="lb-qr" src="' + q.createDataURL(4, 0) + '">';
+  }catch(e){ return ""; }
+}
+
+function totalValue(){
+  var t = 0, n = 0;
+  items.forEach(function(i){
+    var v = parseFloat(i.value);
+    if (v){ t += v * Math.max(1, Number(i.qty) || 1); n++; }
+  });
+  return {total:t, counted:n};
+}
+function printInsurance(){
+  var tv = totalValue();
+  var rows = items.slice().sort(function(a,b){
+    return (parseFloat(b.value)||0) - (parseFloat(a.value)||0);
+  });
+  $("#printout").innerHTML =
+    '<div class="p-group"><div class="p-head">Contents inventory' +
+      '<span class="n">' + items.length + ' item' + (items.length===1?"":"s") + '</span></div>' +
+    (account.logoUrl || images[account.logoId] ? '<img class="p-logo" src="' +
+      (account.logoUrl || images[account.logoId]) + '">' : '') +
+    '<div class="p-addr">' + esc(currentJob().name) + ' \u00b7 prepared ' + new Date().toLocaleDateString() +
+      ' \u00b7 declared value $' + tv.total.toLocaleString(undefined,{maximumFractionDigits:0}) +
+      ' across ' + tv.counted + ' valued item' + (tv.counted===1?"":"s") + '</div>' +
+    '<table class="p-table"><tr><th>#</th><th>Item</th><th>Where</th><th>Qty</th><th>Serial</th><th>Value</th></tr>' +
+    rows.map(function(i){
+      return '<tr><td>' + String(i.n).padStart(2,"0") + '</td>' +
+        '<td>' + esc(i.desc || "\u2014") + (i.contents ? '<br><small>' + esc(i.contents) + '</small>' : '') + '</td>' +
+        '<td>' + esc(nameOf("to", i.to, i.toKid) || nameOf("from", i.from, i.fromKid)) + '</td>' +
+        '<td>' + (i.qty || 1) + '</td><td>' + esc(i.serial || "") + '</td>' +
+        '<td>' + (i.value ? "$" + Number(i.value).toLocaleString() : "") + '</td></tr>';
+    }).join("") + '</table>' +
+    '<div class="p-foot">Values are the owner\u2019s own estimate. Photographs of each item are held in the app and can be exported with Save file.</div></div>';
+  window.print();
+}
+async function printLabels(){
+  flag("Preparing labels\u2026", false);
+  var lib = await loadQR();
+  if (!lib) toast("Printing without QR codes \u2014 no connection to fetch them");
+  flag("", false);
+  printLabelsNow();
+}
+function printLabelsNow(){
+  var boxes = items.filter(function(i){ return i.kind === "box"; });
+  if (!boxes.length){ toast("No boxes yet \u2014 mark a piece as a box first"); return; }
+  var out = [];
+  boxes.forEach(function(i){
+    var n = Math.max(1, Number(i.qty) || 1);
+    for (var c = 0; c < n; c++) out.push({i:i, part: n > 1 ? (c+1) + " of " + n : ""});
+  });
+  $("#printout").innerHTML = '<div class="p-labels">' + out.map(function(o){
+    var i = o.i;
+    return '<div class="p-label' + (i.flag ? " lb-" + i.flag : "") + '">' +
+      '<div class="lb-top"><span class="lb-n">' + String(i.n).padStart(2,"0") + '</span>' +
+        (i.flag ? '<span class="lb-flag">' + esc(i.flag) + '</span>' : '') +
+        (o.part ? '<span class="lb-part">' + o.part + '</span>' : '') +
+        qrTag(i.id) + '</div>' +
+      '<div class="lb-room">' + esc(nameOf("to", i.to, i.toKid) || "Room not set") + '</div>' +
+      '<div class="lb-desc">' + esc(i.desc || "") + '</div>' +
+      '<div class="lb-cont">' + esc(i.contents || "") + '</div>' +
+      '<div class="lb-foot">' + esc(currentJob().name) + '</div></div>';
+  }).join("") + '</div>';
+  window.print();
+}
+function signBlock(){
+  var j = currentJob();
+  var p = sigSrc(j.sigpickup), d = sigSrc(j.sigdelivery);
+  return '<div class="p-group"><div class="p-head">Confirmation</div><div class="p-sig">' +
+    '<div>' + (p ? '<img src="' + p + '">' : '') +
+      'Pickup \u00b7 ' + esc((j.sigpickup || {}).name || "") + '</div>' +
+    '<div>' + (d ? '<img src="' + d + '">' : '') +
+      'Delivery \u00b7 ' + esc((j.sigdelivery || {}).name || "") + '</div>' +
+    '</div></div>';
+}
 function printSigns(){
-  var groups = [];
-  rooms.forEach(function(r){
-    var l = items.filter(function(i){ return i.to === LAKE && i.room === r; });
-    if (l.length) groups.push([r, l]);
-  });
-  [[KEEP,"Homewood keep"],[SELL,"Sell"],[GIVE,"Donate"]].forEach(function(pair){
-    var l = items.filter(function(i){ return i.to === pair[0]; });
-    if (l.length) groups.push([pair[1], l]);
-  });
-  $("#printout").innerHTML = groups.map(function(g){
-    return '<div class="p-sign"><h2>' + esc(g[0]) + '</h2><p>' + g[1].length +
-      ' piece' + (g[1].length>1?"s":"") + '</p><div class="nums">' +
-      g[1].map(function(i){ return String(i.n).padStart(2,"0"); }).join(" \u00b7 ") + '</div></div>';
+  $("#printout").innerHTML = byPlace(items).filter(function(g){
+    return g.head !== "Not sorted yet";
+  }).map(function(g){
+    var ph = kidPhoto(g.kid);
+    var site = g.siteId ? findPlace("to", g.siteId) : null;
+    return '<div class="p-sign"><h2>' + esc(g.head) + '</h2>' +
+      (site && site.address ? '<p>' + esc(site.address) + '</p>' : '') +
+      (ph ? '<img src="' + ph + '">' : '') +
+      '<p>' + g.items.length + ' piece' + (g.items.length>1?"s":"") + '</p>' +
+      '<div class="nums">' + g.items.map(function(i){ return String(i.n).padStart(2,"0"); }).join(" \u00b7 ") +
+      '</div></div>';
   }).join("");
   window.print();
 }
 
 /* ===================== files ===================== */
-function buildFile(){
-  var withImg = items.filter(function(i){ return images[i.id]; });
+function buildFile(withPhotos){
   var imgMap = {};
-  withImg.forEach(function(i){ imgMap[i.id] = images[i.id]; });
+  items.forEach(function(i){
+    if (images[i.id]) imgMap[i.id] = images[i.id];
+    (i.extra || []).forEach(function(x){ if (images[x.id]) imgMap[x.id] = images[x.id]; });
+  });
+  placeRefs().forEach(function(r){ if (images[r.id]) imgMap[r.id] = images[r.id]; });
+  var cj = currentJob();
+  [cj.sigpickup, cj.sigdelivery].forEach(function(sg){
+    if (sg && images[sg.id]) imgMap[sg.id] = images[sg.id];
+  });
+  if (!withPhotos) imgMap = {};
   var payload = JSON.stringify({kind:"furniture-manifest", saved:new Date().toISOString(),
-    items:items, seq:seq, removed:removed, rooms:rooms, images:imgMap});
-  var sheet = grouped().map(function(g){
-    return '<section><h2>' + esc(g[0]) + ' <span>' + g[1].length + '</span></h2><div class="g">' +
-      g[1].map(function(i){
+    items:items, seq:seq, removed:removed, places:places, images:imgMap, v:2});
+  var sheet = byPlace(items).map(function(g){
+    return '<section><h2>' + esc(g.head) + ' <span>' + g.items.length + '</span></h2><div class="g">' +
+      g.items.map(function(i){
+        /* no src here: the photo is stored once in the data block below and
+           filled in when the file opens, so nothing is duplicated */
         return '<figure>' +
-          (srcFor(i) ? '<img src="' + srcFor(i) + '">' : '<div class="noimg">no photo</div>') +
+          (withPhotos && (imgMap[i.id] || i.url)
+            ? '<img data-img="' + esc(i.id) + '" alt="">'
+            : '<div class="noimg">' + (withPhotos ? "no photo" : "photo in data") + '</div>') +
           '<figcaption><b>' + String(i.n).padStart(2,"0") + '</b> ' + esc(i.desc || "\u2014") +
           '<em>' + esc(lineFor(i)) + '</em></figcaption></figure>';
       }).join("") + '</div></section>';
   }).join("");
-
   return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
 '<meta name="viewport" content="width=device-width,initial-scale=1"><title>Furniture manifest</title><style>' +
 ' body{font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;margin:0;padding:20px;color:#16211F}' +
@@ -1138,14 +2813,93 @@ function buildFile(){
 items.length + ' pieces \u00b7 saved ' + new Date().toLocaleString() + '</div>' +
 '<button onclick="window.print()">Print / save as PDF</button>' + sheet +
 '<script id="fm-data" type="application/json">' + payload.replace(/<\//g, "<\\/") + '<\/script>' +
+'<script>(function(){var d=document.getElementById("fm-data");if(!d)return;' +
+'var j=JSON.parse(d.textContent);var m=j.images||{};var by={};(j.items||[]).forEach(function(i){by[i.id]=i;});' +
+'Array.prototype.forEach.call(document.querySelectorAll("[data-img]"),function(el){' +
+'var id=el.getAttribute("data-img");el.src=m[id]||(by[id]&&by[id].url)||"";});})();<\/script>' +
 '</body></html>';
 }
-$("#saveFileBtn").addEventListener("click", function(){
-  var html = buildFile();
+/* Roughly what the saved file will weigh, so nobody is surprised by a 40MB email. */
+function fileSizeBytes(withPhotos){
+  var base = 4000 + items.length * 400;
+  if (!withPhotos) return base;
+  var photos = 0, held = 0;
+  items.forEach(function(i){
+    if (images[i.id]){ photos += images[i.id].length; held++; }
+    (i.extra || []).forEach(function(x){ if (images[x.id]){ photos += images[x.id].length; held++; } });
+  });
+  /* photos still in the project get collected on save, so count them too */
+  var S = SIZES[sizeChoice] || SIZES.standard;
+  /* base64 runs about a third bigger than the jpeg it encodes */
+  var each = held ? photos / held : S.kb * 1024 * 1.37;
+  return base + photos + missingPhotos().length * each;
+}
+function fileSizeLabel(withPhotos){
+  var b = fileSizeBytes(withPhotos);
+  return b < 1048576 ? Math.max(1, Math.round(b / 1024)) + " KB" : (b / 1048576).toFixed(1) + " MB";
+}
+function shareAdvice(){
+  var mb = fileSizeBytes(true) / 1048576;
+  if (mb < 20) return "Small enough to email, text or drop in a shared folder.";
+  if (mb < 60) return "Too big for most email. Send it by AirDrop, or put it in Drive or iCloud and share the link. The list-only file is tiny and emails fine.";
+  return "Well past email limits \u2014 use AirDrop or a shared folder link. The list-only file still emails fine.";
+}
+/* Every photo this device is missing, pulled back from the project so the saved
+   file stands on its own. Without this the file is full of links, and the day
+   the project goes away so do all the pictures. */
+function missingPhotos(){
+  var out = [];
+  function add(o){ if (o && o.id && !images[o.id] && o.url && out.indexOf(o) < 0) out.push(o); }
+  items.forEach(function(i){
+    add(i);
+    (i.extra || []).forEach(function(x){ add(x); });
+  });
+  placeRefs().forEach(function(r){ add(r); });
+  return out.filter(function(o){ return o.id && o.url; });
+}
+async function fetchIntoFile(list, onStep){
+  var got = 0, missed = 0;
+  for (var i = 0; i < list.length; i++){
+    var o = list[i];
+    if (onStep) onStep(i + 1, list.length);
+    try{
+      var r = await fetch(o.url);
+      if (!r.ok){ missed++; continue; }
+      var blob = await r.blob();
+      var data = await new Promise(function(res){
+        var fr = new FileReader();
+        fr.onload = function(){ res(fr.result); };
+        fr.onerror = function(){ res(null); };
+        fr.readAsDataURL(blob);
+      });
+      if (data){ images[o.id] = data; got++; } else missed++;
+    }catch(e){ missed++; }
+  }
+  return {got:got, missed:missed};
+}
+
+async function doSaveFile(withPhotos){
+  if (withPhotos !== false){
+    var gaps = missingPhotos();
+    if (gaps.length){
+      flag("Collecting photos\u2026", false);
+      var r = await fetchIntoFile(gaps, function(n, total){
+        flag("Collecting photos " + n + " of " + total + "\u2026", false);
+      });
+      if (r.missed){
+        warn(r.missed + " photo" + (r.missed > 1 ? "s" : "") + " could not be collected, so " +
+             (r.missed > 1 ? "they are" : "it is") + " saved as a link rather than inside the file. " +
+             "Check your connection and save again if you want a file that stands alone.");
+      }
+    }
+  }
+  var html = buildFile(withPhotos !== false);
   try{
     var url = URL.createObjectURL(new Blob([html], {type:"text/html"}));
     var a = document.createElement("a");
-    a.href = url; a.download = "furniture-manifest.html";
+    a.href = url;
+    a.download = (currentJob().name || "manifest").replace(/[^a-z0-9]+/gi, "-").toLowerCase() +
+                 (withPhotos === false ? "-list" : "") + ".html";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
     dirty = 0; renderTally(); flag("File saved", true);
@@ -1154,8 +2908,8 @@ $("#saveFileBtn").addEventListener("click", function(){
     if (w){ w.document.write(html); w.document.close(); }
     else flag("Blocked here — try a computer", false);
   }
-});
-$("#loadBtn").addEventListener("click", function(){ $("#loader").click(); });
+}
+function doLoadFile(){ $("#loader").click(); }
 $("#loader").addEventListener("change", async function(e){
   var f = e.target.files[0];
   e.target.value = "";
@@ -1178,25 +2932,35 @@ $("#loader").addEventListener("change", async function(e){
       if (it) it.chunk = c;
     }
     for (var i = 0; i < touched.length; i++) await saveChunk(touched[i]);
-    if (cloudOn()) await pushAllPhotos();
     await saveMeta(true);
-    render();
+    fillBulk(); render();
     flag("Loaded " + data.items.length + " pieces", true);
   }catch(err){ flag("Couldn't read that file", false); }
 });
 
 /* ===================== sheets ===================== */
+var sheetsOpen = 0;
 function openSheet(html, wire){
   var s = document.createElement("div");
   s.className = "sheet";
-  s.innerHTML = '<div class="sheet-in"><button class="close">\u00d7</button>' + html + '</div>';
+  s.innerHTML = '<div class="sheet-in"><button class="close">\u00d7</button>' + html +
+    '<button class="btn ghost sheet-done">Done</button></div>';
+  function shut(){
+    s.dispatchEvent(new Event("sheetclosed"));
+    s.remove();
+    sheetsOpen = Math.max(0, sheetsOpen - 1);
+    if (!sheetsOpen) document.body.classList.remove("locked");
+  }
   s.addEventListener("click", function(e){
-    if (e.target === s || e.target.classList.contains("close")){
-      s.dispatchEvent(new Event("sheetclosed"));
-      s.remove();
-    }
+    if (e.target === s || e.target.classList.contains("close") || e.target.classList.contains("sheet-done")) shut();
   });
+  s.shut = shut;
   document.body.appendChild(s);
+  sheetsOpen++;
+  document.body.classList.add("locked");
+  s.scrollTop = 0;
+  var inner = s.querySelector(".sheet-in");
+  if (inner) inner.scrollTop = 0;
   if (wire) wire(s);
   return s;
 }
@@ -1208,36 +2972,417 @@ $("#printBtn").addEventListener("click", function(){
     '<h3>Manifest</h3>' +
     '<div class="row"><button class="btn" data-p="photos">With photos</button>' +
     '<button class="btn ghost" data-p="text">Text only</button></div>' +
+    '<h3>Load plan</h3>' +
+    '<p>One page per pickup site, listing what to load in order. Last stop goes in first, so the first stop comes off the back of the truck.</p>' +
+    '<div class="row"><button class="btn ghost" data-p="load">Print load plan</button></div>' +
+    '<h3>Insurance list</h3>' +
+    '<p>A valued contents list with serial numbers, sorted most valuable first \u2014 for an insurer, a claim, or your own records.</p>' +
+    '<div class="row"><button class="btn ghost" data-p="insurance">Print insurance list</button></div>' +
+    '<h3>Missing items</h3>' +
+    '<p>Everything not yet checked off, grouped by where it was picked up. Print this before the truck leaves.</p>' +
+    '<div class="row"><button class="btn ghost" data-p="missing">Print missing list</button></div>' +
+    '<h3>Box labels</h3>' +
+    '<p>Four to a page for boxes and cartons, with the room in large type and the contents underneath. A box with a quantity gets one label per box.</p>' +
+    '<div class="row"><button class="btn ghost" data-p="labels">Print box labels</button></div>' +
     '<h3>Room signs</h3>' +
-    '<p>One full page per room to tape on the doors at the lake house, listing the piece numbers that belong there.</p>' +
+    '<p>One full page per room, with the room photo if you have added one, plus the piece numbers that belong there.</p>' +
     '<div class="row"><button class="btn ghost" data-p="signs">Print room signs</button></div>',
     function(s){
       Array.prototype.forEach.call(s.querySelectorAll("[data-p]"), function(b){
         b.addEventListener("click", function(){
           var k = b.dataset.p;
-          s.remove();
-          setTimeout(function(){ k === "signs" ? printSigns() : printSheet(k === "photos"); }, 150);
+          (s.shut ? s.shut() : s.remove());
+          setTimeout(function(){
+            if (k === "insurance") printInsurance();
+            else if (k === "missing") printMissing();
+            else if (k === "labels") printLabels();
+            else if (k === "signs") printSigns();
+            else if (k === "load") printLoad();
+            else printSheet(k === "photos");
+          }, 150);
         });
       });
     });
 });
 
+function jobSortKey(j){
+  if (jobSort === "name") return (j.name || "").toLowerCase();
+  if (jobSort === "new") return -(j.createdAt || 0);
+  var d = j.moveDate ? Date.parse(j.moveDate) : NaN;
+  return isNaN(d) ? 8640000000000 : d;     /* no date sinks to the bottom */
+}
+function sortedJobs(){
+  return jobs.slice().sort(function(a,b){
+    var ka = jobSortKey(a), kb = jobSortKey(b);
+    return ka < kb ? -1 : ka > kb ? 1 : 0;
+  });
+}
+function moveDateLabel(j){
+  if (!j.moveDate) return "No date set";
+  var d = Date.parse(j.moveDate + "T12:00:00");
+  if (isNaN(d)) return "No date set";
+  var days = Math.round((d - Date.now()) / 86400000);
+  var when = new Date(d).toLocaleDateString(undefined, {month:"short", day:"numeric", year:"numeric"});
+  if (days === 0) return when + " \u00b7 today";
+  if (days > 0) return when + " \u00b7 in " + days + " day" + (days === 1 ? "" : "s");
+  return when + " \u00b7 " + Math.abs(days) + " day" + (days === -1 ? "" : "s") + " ago";
+}
+/* Signature capture: finger or stylus on a canvas, stored like any other photo. */
+function signFor(which){
+  var label = which === "pickup" ? "Pickup" : "Delivery";
+  var sh = openSheet(
+    '<h2>' + label + ' signature</h2>' +
+    '<p>Have the customer sign below to confirm the manifest at ' + label.toLowerCase() + '.</p>' +
+    '<input type="text" id="sigName" placeholder="Printed name" value="' +
+      esc((currentJob()["sig" + which] || {}).name || "") + '">' +
+    '<canvas id="sigPad" width="600" height="220"></canvas>' +
+    '<div class="row"><button class="btn" id="sigSave">Save signature</button>' +
+    '<button class="btn ghost" id="sigClear">Clear</button></div>',
+    function(sheet){
+      var cv = sheet.querySelector("#sigPad");
+      var ctx = cv.getContext("2d");
+      ctx.lineWidth = 2.5; ctx.lineCap = "round"; ctx.strokeStyle = "#16211F";
+      var drawing = false, blank = true;
+      function pos(e){
+        var r = cv.getBoundingClientRect();
+        var p = e.touches ? e.touches[0] : e;
+        return {x:(p.clientX - r.left) * (cv.width / r.width),
+                y:(p.clientY - r.top) * (cv.height / r.height)};
+      }
+      function start(e){ drawing = true; blank = false; var q = pos(e); ctx.beginPath(); ctx.moveTo(q.x, q.y); e.preventDefault(); }
+      function move(e){ if (!drawing) return; var q = pos(e); ctx.lineTo(q.x, q.y); ctx.stroke(); e.preventDefault(); }
+      function end(){ drawing = false; }
+      cv.addEventListener("mousedown", start); cv.addEventListener("mousemove", move);
+      window.addEventListener("mouseup", end);
+      cv.addEventListener("touchstart", start, {passive:false});
+      cv.addEventListener("touchmove", move, {passive:false});
+      cv.addEventListener("touchend", end);
+      sheet.querySelector("#sigClear").addEventListener("click", function(){
+        ctx.clearRect(0, 0, cv.width, cv.height); blank = true;
+      });
+      sheet.querySelector("#sigSave").addEventListener("click", async function(){
+        if (blank){ toast("Nothing signed yet"); return; }
+        var data = cv.toDataURL("image/png");
+        var pid = uid("sig");
+        var c = pickChunk(data.length + 40);
+        chunks[c][pid] = data; images[pid] = data;
+        var j = currentJob();
+        j["sig" + which] = {id:pid, chunk:c, url:"",
+          name: sheet.querySelector("#sigName").value.trim(), when: Date.now()};
+        await saveChunk(c);
+        if (cloudOn()){
+        }
+        await saveGlobal();
+        (sheet.shut ? sheet.shut() : sheet.remove());
+        toast(label + " signature saved");
+      });
+    });
+  return sh;
+}
+function sigSrc(sig){ return sig ? (sig.url || images[sig.id] || null) : null; }
+
+function toCSV(){
+  var rows = [["Number","Description","Type","Contents","Quantity","W","D","H","Cu ft",
+               "Handling","Value","Serial","Picked up at","Going to","Room","Notes","Delivered"]];
+  items.forEach(function(i){
+    rows.push([String(i.n).padStart(2,"0"), i.desc || "", i.kind === "box" ? "Box" : "Furniture",
+      i.contents || "", i.qty || 1, i.w || "", i.d || "", i.h || "",
+      cuft(i) ? cuft(i).toFixed(1) : "",
+      i.flag || "", i.value || "", i.serial || "",
+      i.from === BUY_ID ? "To buy" : nameOf("from", i.from, i.fromKid),
+      i.to ? nameOf("to", i.to) : "",
+      i.toKid ? (findKid("to", i.to, i.toKid) || {}).name || "" : "",
+      i.notes || "", i.arrived ? new Date(i.arrived).toLocaleString() : ""]);
+  });
+  return rows.map(function(r){
+    return r.map(function(cell){
+      var v = String(cell == null ? "" : cell);
+      return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+    }).join(",");
+  }).join("\n");
+}
+
+function showJobs(){
+  var sh = openSheet(
+    '<h2>Jobs</h2>' +
+    '<p id="jobCount"></p>' +
+    '<div class="row">' +
+      '<select id="jobSortSel">' +
+        '<option value="date">Sort by move date</option>' +
+        '<option value="name">Sort by name</option>' +
+        '<option value="new">Sort by newest</option>' +
+      '</select>' +
+      '<button class="btn ghost sm" id="showArch">Show archived</button>' +
+    '</div>' +
+    '<div id="jobList"></div>' +
+    '<h3>Signatures for ' + esc(currentJob().name) + '</h3>' +
+    '<p>Confirm the manifest with the customer at both ends. Signatures print on the manifest.</p>' +
+    '<div class="row"><button class="btn ghost" id="sigPick">Pickup signature</button>' +
+    '<button class="btn ghost" id="sigDrop">Delivery signature</button></div>' +
+    '<div class="status" id="sigState" hidden></div>' +
+    '<h3>Start a new job</h3>' +
+    '<input type="text" id="njName" placeholder="Job name \u2014 e.g. Henderson move">' +
+    '<input type="text" id="njClient" placeholder="Customer or address (optional)">' +
+    '<label>Estimated move date</label>' +
+    '<input type="date" id="njDate">' +
+    '<div class="row"><button class="btn" id="njGo">Start job</button></div>' +
+    '<div class="status" id="njMsg" hidden></div>',
+    function(sheet){
+      var sel = sheet.querySelector("#jobSortSel");
+      sel.value = jobSort;
+      sel.addEventListener("change", function(){ jobSort = sel.value; store.set("fm:jobsort", jobSort); paintJobs(); });
+      sheet.querySelector("#showArch").addEventListener("click", function(){
+        showArchived = !showArchived;
+        sheet.querySelector("#showArch").textContent = showArchived ? "Hide archived" : "Show archived";
+        paintJobs();
+      });
+
+      function paintJobs(){
+        var host = sheet.querySelector("#jobList");
+        var open = jobs.filter(function(j){ return !j.closed && !j.archived; }).length;
+        sheet.querySelector("#jobCount").textContent =
+          "Each job is its own manifest \u2014 own pieces, sites, rooms and share link. " +
+          open + " open of " + jobsAllowed() + " on your plan.";
+
+        var list = sortedJobs().filter(function(j){ return showArchived || !j.archived; });
+        host.innerHTML = list.map(function(j){
+          var here = j.id === jobId;
+          return '<div class="jobrow' + (here ? " here" : "") + (j.closed ? " closed" : "") +
+              (j.archived ? " arch" : "") + '" data-job="' + esc(j.id) + '">' +
+            '<div class="jobname">' + esc(j.name) +
+              (here ? ' <span class="badge">Open now</span>' : '') +
+              (j.closed ? ' <span class="badge closed">Closed</span>' : '') +
+              (j.archived ? ' <span class="badge closed">Archived</span>' : '') + '</div>' +
+            '<div class="jobsub">' + esc(moveDateLabel(j)) + '</div>' +
+            '<input type="text" data-f="name" value="' + esc(j.name) + '" placeholder="Job name">' +
+            '<input type="text" data-f="client" value="' + esc(j.client || "") + '" placeholder="Customer or address">' +
+            '<input type="date" data-f="moveDate" value="' + esc(j.moveDate || "") + '">' +
+            '<div class="row">' +
+              (here ? '' : '<button class="btn sm" data-act="open">Open</button>') +
+              '<button class="btn ghost sm" data-act="close">' + (j.closed ? "Reopen" : "Mark complete") + '</button>' +
+              '<button class="btn ghost sm" data-act="arch">' + (j.archived ? "Unarchive" : "Archive") + '</button>' +
+            '</div></div>';
+        }).join("") || '<div class="status">No jobs to show.</div>';
+
+        Array.prototype.forEach.call(host.querySelectorAll(".jobrow"), function(row){
+          var j = jobs.filter(function(x){ return x.id === row.dataset.job; })[0];
+          if (!j) return;
+          /* Update in place. Rebuilding the list here would steal focus and
+             close the date picker mid-scroll. */
+          Array.prototype.forEach.call(row.querySelectorAll("[data-f]"), function(inp){
+            inp.addEventListener("change", async function(){
+              var f = inp.dataset.f;
+              j[f] = inp.value.trim();
+              if (f === "name" && !j.name){ j.name = "Untitled job"; inp.value = j.name; }
+              var nameEl = row.querySelector(".jobname");
+              var subEl = row.querySelector(".jobsub");
+              if (f === "name" && nameEl){
+                var badges = nameEl.querySelectorAll(".badge");
+                nameEl.textContent = j.name;
+                Array.prototype.forEach.call(badges, function(b){
+                  nameEl.appendChild(document.createTextNode(" "));
+                  nameEl.appendChild(b);
+                });
+              }
+              if (f === "moveDate" && subEl) subEl.textContent = moveDateLabel(j);
+              await saveGlobal();
+              if (f === "name" && j.id === jobId) checkPlan();
+            });
+          });
+          Array.prototype.forEach.call(row.querySelectorAll("[data-act]"), function(b){
+            b.addEventListener("click", async function(){
+              var a = b.dataset.act;
+              if (a === "open"){ (sheet.shut ? sheet.shut() : sheet.remove()); await openJob(j.id); return; }
+              if (a === "close") j.closed = !j.closed;
+              if (a === "arch"){
+                j.archived = !j.archived;
+                if (j.archived) j.closed = true;
+              }
+              await saveGlobal();
+              paintJobs();
+              render();
+            });
+          });
+        });
+      }
+      paintJobs();
+
+      function paintSig(){
+        var j = currentJob(), el = sheet.querySelector("#sigState");
+        var bits = [];
+        if (j.sigpickup) bits.push("Pickup signed by " + (j.sigpickup.name || "customer"));
+        if (j.sigdelivery) bits.push("Delivery signed by " + (j.sigdelivery.name || "customer"));
+        el.hidden = !bits.length;
+        el.className = "status ok";
+        el.textContent = bits.join(" \u00b7 ");
+      }
+      paintSig();
+      sheet.querySelector("#sigPick").addEventListener("click", function(){ (sheet.shut ? sheet.shut() : sheet.remove()); signFor("pickup"); });
+      sheet.querySelector("#sigDrop").addEventListener("click", function(){ (sheet.shut ? sheet.shut() : sheet.remove()); signFor("delivery"); });
+
+      sheet.querySelector("#njGo").addEventListener("click", async function(){
+        var msg = sheet.querySelector("#njMsg");
+        var open = jobs.filter(function(j){ return !j.closed && !j.archived; }).length;
+        if (open >= jobsAllowed()){
+          msg.hidden = false;
+          msg.className = "status no";
+          msg.textContent = "Your plan covers " + jobsAllowed() + " open job" +
+            (jobsAllowed() === 1 ? "" : "s") + ". Mark one complete, or add a job pack.";
+          setTimeout(function(){ (sheet.shut ? sheet.shut() : sheet.remove()); showPaywall(); }, 1400);
+          return;
+        }
+        var j = await createJob(sheet.querySelector("#njName").value.trim(),
+                                sheet.querySelector("#njClient").value.trim());
+        if (j){
+          j.moveDate = sheet.querySelector("#njDate").value || "";
+          await saveGlobal();
+          (sheet.shut ? sheet.shut() : sheet.remove());
+        }
+      });
+    });
+  return sh;
+}
+$("#jobsBtn").addEventListener("click", showJobs);
+$("#jobline").addEventListener("click", showJobs);
+
+$("#shareBtn").addEventListener("click", function(){
+  openSheet(
+    '<h2>Share this list</h2>' +
+    '<p>Two different things, so pick the one you mean.</p>' +
+
+    '<h3>Send a copy</h3>' +
+    '<p>For movers, family, an insurer \u2014 anyone who needs to see the list but is not building it with you. ' +
+      'They get a single file with every photo in it. It opens in any browser, works with no signal, ' +
+      'and needs no account and no app. It is a snapshot: changes you make afterwards do not reach them, ' +
+      'and nothing they do comes back to you.</p>' +
+    '<div class="row">' +
+      '<button class="btn" id="shWith">Copy with photos \u00b7 ' + esc(fileSizeLabel(true)) + '</button>' +
+      '<button class="btn ghost" id="shList">List only \u00b7 ' + esc(fileSizeLabel(false)) + '</button>' +
+    '</div>' +
+    '<p class="small">' + esc(shareAdvice()) + ' Once it saves, send it however you normally send a file \u2014 ' +
+      'Messages, email, AirDrop, or drop it in a shared folder and send the link.</p>' +
+
+    '<h3>Work on it together</h3>' +
+    '<p>For a partner, or a crew that checks things off as they go. They do not need ' +
+      'an account of any kind \u2014 the setup link configures their phone and drops them ' +
+      'straight into this job. Everyone sees the same list, live.</p>' +
+    (cloudOn()
+      ? '<div class="status ok">This job is syncing. Send the setup link and you can both ' +
+          'be adding photos to it at once.</div>' +
+        '<div class="row">' +
+          '<button class="btn" id="shCopyLink">Working link</button>' +
+          '<button class="btn ghost" id="shViewLink">View-only link</button>' +
+        '</div>' +
+        '<p class="small"><b>Working link</b> lets them add and change things, and shows them ' +
+          'every job in the project. That is the one for Katie. ' +
+          '<b>View-only link</b> opens this job and nothing else \u2014 no key travels with it, ' +
+          'so they cannot edit, cannot see your other jobs, and cannot list what is in storage. ' +
+          'That is the one for movers.</p>' +
+        '<ol class="steps">' +
+          '<li>Copy the link and send it however you like \u2014 text, email, whatever.</li>' +
+          '<li>They open it on their phone and add it to the Home Screen.</li>' +
+          '<li>The job appears, photos and all. Nothing to sign in to.</li>' +
+          '<li>Whoever edits last wins, piece by piece, so you can both work at once.</li>' +
+        '</ol>' +
+        '<p class="small">The link carries your project key, so treat it like a door key. ' +
+          'Anyone holding it can read and change this project.</p>'
+      : '<div class="status">Not syncing yet. Open Settings \u2192 Sync and share, connect your ' +
+          'Supabase project, then come back here for the link.</div>') +
+    '<h3>For the crew on the day</h3>' +
+    '<p>A live link if you want their check-offs coming back to you, a copy if you do not. ' +
+      'Print \u2192 Load plan and Room signs give them paper for the truck and the doors either way.</p>',
+    function(sh){
+      sh.querySelector("#shWith").addEventListener("click", function(){ doSaveFile(true); });
+      sh.querySelector("#shList").addEventListener("click", function(){ doSaveFile(false); });
+      var vl = sh.querySelector("#shViewLink");
+      if (vl) vl.addEventListener("click", async function(){
+        var link = viewLink();
+        if (!link){ toast("Connect a project in Settings first"); return; }
+        try { await navigator.clipboard.writeText(link); toast("View-only link copied"); }
+        catch(e){ toast(link); }
+      });
+      var cp = sh.querySelector("#shCopyLink");
+      if (cp) cp.addEventListener("click", async function(){
+        var link = shareLink();
+        if (!link){ toast("Connect a project in Settings first"); return; }
+        try { await navigator.clipboard.writeText(link); toast("Setup link copied \u2014 send it to them"); }
+        catch(e){ toast(link); }
+      });
+    });
+});
 $("#settingsBtn").addEventListener("click", function(){
   openSheet(
     '<h2>Settings</h2>' +
-    '<h3>Share with a second phone</h3>' +
-    '<p>Paste the two values from your Supabase project (Project Settings → API). Photos and the list then live in your project instead of only on this phone.</p>' +
+    '<div class="promise">' +
+      '<h3 class="first">Your photos are yours</h3>' +
+      '<p>Every photo you take stays in your own camera roll. The copies in here are yours too: ' +
+      '<b>Save file</b> writes one file with every photo and every detail embedded, which opens in any browser ' +
+      'on any device, with or without this app, forever. Nothing is held hostage if you stop paying, ' +
+      'and nothing is deleted because a subscription lapsed.</p>' +
+      '<div class="row">' +
+        '<button class="btn" id="saveFileBtn2">Save file \u00b7 ' + esc(fileSizeLabel(true)) + '</button>' +
+        '<button class="btn ghost" id="loadBtn2">Load a saved file</button>' +
+      '</div>' +
+      '<div class="row">' +
+        '<button class="btn ghost" id="saveLite">List only \u00b7 ' + esc(fileSizeLabel(false)) + '</button>' +
+        '<button class="btn ghost" id="csvBtn">Spreadsheet (CSV)</button>' +
+      '</div>' +
+      '<p class="small">' + esc(shareAdvice()) + '</p>' +
+    '</div>' +
+    '<h3>Sites</h3>' +
+    '<p>One per line. Indent two spaces to nest a room or a pile inside a site. Drop-offs are visited in the order they appear here, and the load plan reverses that so the first stop comes off the back of the truck.</p>' +
+    '<textarea id="siteList" rows="14">' + esc(sitesToText(allSites())) + '</textarea>' +
+    '<div class="row"><button class="btn" id="placeSave">Save sites</button></div>' +
+    '<div id="siteDetails"></div>' +
+    '<h3>Room photos</h3>' +
+    '<p>A photo of the room beats a name the crew has to guess at. These show on the cards, the board, and the printed room signs.</p>' +
+    '<div id="roomPhotos"></div>' +
+    '<h3>Sync and share</h3>' +
+    '<p>Optional. Copies this list and its photos into a Supabase project you own, ' +
+      'so a second phone can join and a lost phone is not a lost move. ' +
+      'Leave it off and everything stays on this device.</p>' +
     '<label>Project URL</label>' +
     '<input type="text" id="cfgUrl" placeholder="https://abcdefgh.supabase.co" value="' + esc(cfg.url) + '">' +
-    '<label>Anon public key</label>' +
-    '<input type="text" id="cfgKey" placeholder="eyJhbGciOi..." value="' + esc(cfg.key) + '">' +
-    '<div class="row"><button class="btn" id="cfgSave">Connect</button>' +
-    '<button class="btn ghost" id="cfgLink">Copy setup link</button>' +
-    '<button class="btn ghost" id="cfgOff">Disconnect</button></div>' +
-    '<div class="status" id="cfgStatus">' +
-      (cloudOn() ? "Connected. This device syncs to your project." : "Not connected — saving on this device only.") +
+    '<label>Publishable key</label>' +
+    '<input type="text" id="cfgKey" placeholder="sb_publishable_... or legacy anon key" value="' + esc(cfg.key) + '">' +
+    '<div class="row">' +
+      '<button class="btn" id="cfgSave">Connect</button>' +
+      '<button class="btn ghost" id="cfgLink">Copy setup link</button>' +
+      '<button class="btn ghost" id="cfgOff">Disconnect</button>' +
     '</div>' +
-    '<div class="row"><button class="btn ghost" id="cfgPush">Upload this phone\u2019s photos to the project</button></div>' +
+    '<div class="status" id="cfgStatus">' +
+      (cloudOn() ? "Connected. This device is syncing." : "Off \u2014 saving on this device only.") +
+    '</div>' +
+    '<div class="row"><button class="btn ghost" id="cfgPush">Upload this phone\u2019s photos</button></div>' +
+    '<h3>Keep jobs apart</h3>' +
+    '<p>Each job gets its own folder in the bucket, so a view-only link reaches that job ' +
+      'and nothing else. Older saves put every photo in one pile \u2014 this sorts them out.</p>' +
+    '<div class="status" id="tidyState">' +
+      (!cloudOn() ? "Connect a project first."
+        : tidyNeeded() ? "This job still has photos in the old shared pile."
+        : "This job is already in its own folder.") + '</div>' +
+    '<div class="row"><button class="btn ghost" id="tidyBtn">Sort this job into its own folder</button></div>' +
+    '<h3>Plan</h3>' +
+    '<div class="status" id="planNow">' + esc(planLine()) + '</div>' +
+    '<input type="text" id="codeIn2" placeholder="Redeem a code" autocapitalize="characters">' +
+    '<div class="row"><button class="btn ghost" id="codeGo2">Redeem</button>' +
+    '<button class="btn ghost" id="planReset">Back to free</button></div>' +
+    '<h3>Your logo</h3>' +
+    '<p>Printed at the top of the manifest, so what you hand a customer carries your name.</p>' +
+    '<div class="row">' + (account.logoUrl || images[account.logoId]
+      ? '<img class="logoprev" src="' + (account.logoUrl || images[account.logoId]) + '">' : '') +
+      '<button class="btn ghost" id="logoBtn">' +
+      (account.logoId ? "Replace logo" : "Add logo") + '</button></div>' +
+
+    '<h3>Declared value</h3>' +
+    '<div class="status">' + (totalValue().counted
+      ? "$" + totalValue().total.toLocaleString(undefined,{maximumFractionDigits:0}) + " across " +
+        totalValue().counted + " valued item" + (totalValue().counted===1?"":"s") +
+        ". " + (items.length - totalValue().counted) + " have no value yet."
+      : "No values entered yet. Add them under Size, count, notes on any piece.") + '</div>' +
+    '<h3>Truck estimate</h3>' +
+    '<div class="status" id="volOut">' + esc(volumeLine()) + '</div>' +
+    '<p>A rough guide only \u2014 it counts the boxes of air around each piece, not how well a crew packs.</p>' +
     '<h3>Photo size and space used</h3>' +
     '<div class="status" id="useOut"></div>' +
     '<p>Applies to photos added from now on.</p>' +
@@ -1246,59 +3391,116 @@ $("#settingsBtn").addEventListener("click", function(){
       '<button class="btn ghost" data-size="standard">Standard</button>' +
       '<button class="btn ghost" data-size="detailed">Detailed</button>' +
     '</div>' +
-    '<h3>Rooms at the lake house</h3>' +
-    '<p>One per line. Rename or add as many as you like — this list travels to the other phone.</p>' +
-    '<textarea id="roomList" rows="10">' + esc(rooms.join("\n")) + '</textarea>' +
-    '<div class="row"><button class="btn" id="roomSave">Save rooms</button></div>' +
     '<h3>Diagnostics</h3>' +
     '<div class="row"><button class="btn ghost" id="diagBtn">Test this device</button></div>' +
     '<div id="diagOut"></div>',
     function(s){
       var st = s.querySelector("#cfgStatus");
-
+      function say(msg, good){
+        st.className = "status" + (good === true ? " ok" : good === false ? " no" : "");
+        st.textContent = msg;
+      }
       s.querySelector("#cfgSave").addEventListener("click", async function(){
         var url = s.querySelector("#cfgUrl").value.trim().replace(/\/+$/, "");
         var key = s.querySelector("#cfgKey").value.trim();
-        if (!url || !key){ st.className = "status no"; st.textContent = "Both values are needed."; return; }
-        st.className = "status"; st.textContent = "Checking\u2026";
+        if (!url || !key){ say("Both the project URL and the key are needed.", false); return; }
         var prev = cfg;
         cfg = {url:url, key:key};
+        say("Checking\u2026");
         try{
-          await cloudPut("manifest.json", new Blob([JSON.stringify(packed())], {type:"application/json"}), "application/json");
+          if (!cfg.acct) cfg.acct = randKey();
+          jobs.forEach(function(j){ if (!j.key) j.key = randKey(); });
+          await ckPut(ckName("manifest"), ckType(), JSON.stringify(packed()));
           await store.set("fm:cfg", JSON.stringify(cfg));
-          st.className = "status ok";
-          st.textContent = "Connected. Now tap the upload button below to move this phone\u2019s photos across.";
+          say("Connected. Now tap Upload this phone\u2019s photos.", true);
           renderFoot();
         }catch(e){
           cfg = prev;
-          st.className = "status no";
-          st.textContent = "Couldn\u2019t reach it: " + e.message + " — check the bucket is named \u201cphotos\u201d, is public, and that the upload policy is in place.";
+          var msg = e.message || "";
+          if (msg.indexOf("Bucket not found") >= 0)
+            say("Connected to the project, but there is no bucket called \u201cphotos\u201d yet. " +
+                "Create it in Storage \u2192 New bucket, tick Public bucket, then tap Connect again.", false);
+          else if (msg.indexOf("row-level security") >= 0 || msg.indexOf("Unauthorized") >= 0 || msg.indexOf("403") >= 0)
+            say("The bucket exists but is refusing uploads. Run the four policy lines in the SQL editor, then tap Connect again.", false);
+          else if (msg.indexOf("401") >= 0)
+            say("That key was rejected \u2014 make sure it is the publishable key, not a secret key.", false);
+          else say("Couldn\u2019t reach it: " + msg, false);
         }
       });
       s.querySelector("#cfgOff").addEventListener("click", async function(){
         cfg = {url:"", key:""};
+        photoUrls = {};
         await store.set("fm:cfg", JSON.stringify(cfg));
-        st.className = "status";
-        st.textContent = "Disconnected — saving on this device only.";
+        say("Off \u2014 saving on this device only.");
         renderFoot();
       });
       s.querySelector("#cfgLink").addEventListener("click", async function(){
-        if (!cloudOn()){ st.className = "status no"; st.textContent = "Connect first."; return; }
-        var link = location.origin + location.pathname + "#cfg=" + encodeURIComponent(btoa(JSON.stringify(cfg)));
+        if (!cloudOn()){ say("Connect first.", false); return; }
+        var link = shareLink();
         try{
           await navigator.clipboard.writeText(link);
-          st.className = "status ok";
-          st.textContent = "Setup link copied — send it to the other phone and it sets itself up.";
-        }catch(e){ st.className = "status"; st.textContent = link; }
+          say("Setup link copied \u2014 send it to the other phone and it sets itself up.", true);
+        }catch(e){ say(link); }
       });
       s.querySelector("#cfgPush").addEventListener("click", async function(){
-        if (!cloudOn()){ st.className = "status no"; st.textContent = "Connect first."; return; }
-        st.className = "status"; st.textContent = "Uploading\u2026";
+        if (!cloudOn()){ say("Connect first.", false); return; }
+        say("Uploading\u2026");
         var r = await pushAllPhotos();
-        st.className = r.fail ? "status no" : "status ok";
-        st.textContent = "Uploaded " + r.n + " photo" + (r.n === 1 ? "" : "s") +
-          (r.fail ? ", " + r.fail + " failed." : ". All set.");
+        say("Uploaded " + r.n + " photo" + (r.n === 1 ? "" : "s") +
+            (r.fail ? ", " + r.fail + " failed." : ". All set."), !r.fail);
       });
+
+      s.querySelector("#tidyBtn").addEventListener("click", async function(){
+        var el = s.querySelector("#tidyState");
+        if (!cloudOn()){ el.className = "status no"; el.textContent = "Connect a project first."; return; }
+        el.className = "status";
+        el.textContent = "Sorting\u2026";
+        var r = await tidyIntoFolders(function(done, bad, total){
+          el.textContent = "Sorting\u2026 " + done + " of " + total;
+        });
+        el.className = r.failed ? "status no" : "status ok";
+        el.textContent = r.failed
+          ? "Moved " + r.moved + ", " + r.failed + " could not be moved. Tap again to retry those."
+          : "Done \u2014 " + r.moved + " photo" + (r.moved === 1 ? "" : "s") + " now in this job\u2019s own folder.";
+        render();
+      });
+      s.querySelector("#codeGo2").addEventListener("click", function(){
+        var c = redeem(s.querySelector("#codeIn2").value);
+        var el = s.querySelector("#planNow");
+        el.className = (c && !c.spent) ? "status ok" : "status no";
+        el.textContent = !c ? "That code was not recognised."
+          : c.spent ? "That code has already been used on this account."
+          : "Code accepted \u2014 " + c.label + ".";
+        render();
+      });
+      s.querySelector("#planReset").addEventListener("click", function(){
+        account.plan = "free"; account.expiresAt = 0; account.credits = 0;
+        account.convertOffered = false; account.code = "";
+        /* account.used is left alone on purpose: a spent code stays spent. */
+        saveMeta(true); saveGlobal(); render();
+        var el = s.querySelector("#planNow");
+        el.className = "status";
+        el.textContent = planLine();
+      });
+
+      s.querySelector("#saveFileBtn2").addEventListener("click", function(){ doSaveFile(true); });
+      s.querySelector("#saveLite").addEventListener("click", function(){ doSaveFile(false); });
+      s.querySelector("#loadBtn2").addEventListener("click", doLoadFile);
+      s.querySelector("#logoBtn").addEventListener("click", function(){
+        pendingLogo = true;
+        $("#picker").click();
+      });
+      s.querySelector("#csvBtn").addEventListener("click", function(){
+        doCSV();
+      });
+      function doCSV(){
+        var url = URL.createObjectURL(new Blob([toCSV()], {type:"text/csv"}));
+        var a = document.createElement("a");
+        a.href = url; a.download = (currentJob().name || "manifest").replace(/[^a-z0-9]+/gi, "-") + ".csv";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+        flag("CSV saved", true);
+      }
 
       function paintUse(){
         var u = usage(), el = s.querySelector("#useOut");
@@ -1324,17 +3526,6 @@ $("#settingsBtn").addEventListener("click", function(){
         });
       });
 
-      s.querySelector("#roomSave").addEventListener("click", function(){
-        var list = s.querySelector("#roomList").value.split("\n")
-          .map(function(x){ return x.trim(); }).filter(Boolean);
-        if (!list.length) return;
-        rooms = list;
-        fillBulk(); render(); saveMeta(true);
-        var b = s.querySelector("#roomSave");
-        b.textContent = "Saved";
-        setTimeout(function(){ b.textContent = "Save rooms"; }, 1500);
-      });
-
       s.querySelector("#diagBtn").addEventListener("click", async function(){
         var out = s.querySelector("#diagOut");
         var probes = [
@@ -1351,8 +3542,8 @@ $("#settingsBtn").addEventListener("click", function(){
           }],
           ["Reaching your project", async function(){
             if (!cloudOn()) throw new Error("not connected yet");
-            var r = await fetch(pubUrl("manifest.json") + "?t=" + Date.now(), {cache:"no-store"});
-            return r.ok ? "manifest found" : "reached it, status " + r.status;
+            var r = await fetch(pubUrl(ckName("manifest")) + "?t=" + Date.now(), {cache:"no-store"});
+            return r.ok ? "this job is in the project" : "reached it, status " + r.status;
           }]
         ];
         out.innerHTML = "";
@@ -1374,7 +3565,275 @@ $("#settingsBtn").addEventListener("click", function(){
     });
 });
 
-load();
+
+/* ===================== paywall, conversion, first run ===================== */
+function planCard(o){
+  return '<div class="plan' + (o.best ? " best" : "") + '">' +
+    '<h4>' + esc(o.name) + '<span class="price">' + esc(o.price) + '</span></h4>' +
+    '<p>' + esc(o.blurb) + '</p>' +
+    '<ul>' + o.points.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join("") + '</ul>' +
+    '<button class="btn" data-buy="' + o.key + '">' + esc(o.cta) + '</button></div>';
+}
+
+function showPaywall(){
+  var s = openSheet(
+    '<h2>You have used your ' + FREE_LIMIT + ' free items</h2>' +
+    '<p>Everything you have logged so far stays exactly where it is. Pick how you want to keep going.</p>' +
+    planCard({key:"move", name:"One move", price:PRICE.move, best:true,
+      blurb:"For a single household move. Unlimited items, open for a year.",
+      points:["Unlimited pieces and photos","Share links for family and crew","Printed room sheets and signs","Closes a year after you start"],
+      cta:"Buy one move"}) +
+    planCard({key:"pack5", name:"Job pack \u00b7 5", price:PRICE.pack5,
+      blurb:"For movers running jobs for customers. Each job is separate, with its own share link.",
+      points:[PRICE.each + " per job, half price","Five independent jobs","Separate crew link per job","Add packs any time"],
+      cta:"Buy 5 jobs"}) +
+    planCard({key:"keeper", name:"Keeper", price:PRICE.keeper + "/yr",
+      blurb:"For tracking what is in storage year round. Nothing is ever closed or purged.",
+      points:["Unlimited items, no expiry","Search a unit before you drive to it","Sizes and photos kept for insurance","Cancel any time"],
+      cta:"Start Keeper"}) +
+    '<h3>Have a code?</h3>' +
+    '<input type="text" id="codeIn" placeholder="MOVEIT-\u2026" autocapitalize="characters">' +
+    '<div class="row"><button class="btn ghost" id="codeGo">Redeem</button></div>' +
+    '<div class="status" id="codeMsg" hidden></div>' +
+    '<div class="stub">Payments are not connected yet. Picking a plan will not charge you or unlock anything \u2014 use a code to test.</div>',
+    function(sh){
+      var msg = sh.querySelector("#codeMsg");
+      sh.querySelector("#codeGo").addEventListener("click", function(){
+        var c = redeem(sh.querySelector("#codeIn").value);
+        msg.hidden = false;
+        if (c && c.spent){
+          msg.className = "status no";
+          msg.textContent = "That code has already been used on this account.";
+        } else if (c){
+          msg.className = "status ok";
+          msg.textContent = "Code accepted \u2014 " + c.label + ". You can add as much as you like.";
+          setTimeout(function(){ (sh.shut ? sh.shut() : sh.remove()); }, 1400);
+        } else {
+          msg.className = "status no";
+          msg.textContent = "That code was not recognised.";
+        }
+      });
+      var pending = null;
+      Array.prototype.forEach.call(sh.querySelectorAll("[data-buy]"), function(b){
+        b.addEventListener("click", function(){
+          pending = b.dataset.buy;
+          msg.hidden = false;
+          msg.className = "status";
+          msg.innerHTML = "Checkout is not connected yet, so nothing was charged and nothing was unlocked. " +
+            "Enter a code above to unlock, or " +
+            '<a href="#" id="simGo">unlock it anyway for testing</a>.';
+          var sim = sh.querySelector("#simGo");
+          if (sim) sim.addEventListener("click", function(ev){
+            ev.preventDefault();
+            if (pending === "move") activate("move", 12, 0);
+            else if (pending === "pack5") activate("pack", 12, 5);
+            else activate("keeper", 0, 0);
+            (sh.shut ? sh.shut() : sh.remove());
+            toast("Unlocked for testing \u2014 no payment taken");
+          });
+        });
+      });
+    });
+  return s;
+}
+
+function offerConvert(d){
+  account.convertOffered = true;
+  saveMeta();
+  var when = d > 1 ? "in " + d + " days" : (d === 1 ? "tomorrow" : "already");
+  openSheet(
+    '<h2>Your job closes ' + esc(when) + '</h2>' +
+    '<p>When a move job closes you keep read access and your saved files, but you cannot add or change pieces. If you want to keep this as a running inventory of what you own and where it is, convert it.</p>' +
+    planCard({key:"convert", name:"Convert to Keeper", price:PRICE.convert + " first year", best:true,
+      blurb:"Everything you already logged carries over, photos and all. " + PRICE.keeper + "/yr after the first year.",
+      points:["Nothing expires or gets purged","Keep adding as you buy and sell","Search before you drive to storage"],
+      cta:"Convert for " + PRICE.convert}) +
+    '<div class="stub">Checkout is not connected yet \u2014 this unlocks it on this device.</div>',
+    function(sh){
+      sh.querySelector("[data-buy]").addEventListener("click", function(){
+        activate("keeper", 0, 0);
+        (sh.shut ? sh.shut() : sh.remove());
+        toast("Converted to Keeper \u2014 nothing will be closed");
+      });
+    });
+}
+
+function demoItem(){
+  return {id:uid("demo"), n:0, demo:true, desc:"Walnut dresser, 6 drawers",
+    from:"o-current", fromKid:"", to:"d-new", toKid:"r-primary",
+    qty:1, w:"60", d:"20", h:"32", notes:"Two people, drawers travel separately", ts:Date.now()};
+}
+
+var TOUR = [
+  {h:"Welcome to MoveIT Manifest",
+   p:"Photograph each piece once, say where it is now and where it is going, and everyone works from the same list \u2014 you, your family, and the crew on move day.",
+   art:"<b>The short version</b><br>Add a photo \u2192 tap where it goes \u2192 print or share. Nothing else is required."},
+  {h:"Set up your places first",
+   p:"Two lists drive everything: where things are now, and where they are going. Indent a line with two spaces to nest rooms inside a place. Edit both any time in Settings.",
+   art:"<b>Goes to</b><code>New house\n  Primary bedroom\n  Living room\n  Garage\nStorage unit \u2014 keep pile\nStorage unit \u2014 sell pile\nDonate</code>"},
+  {h:"Sort with your thumb",
+   p:"Every card has your places as buttons. Tap one, tap the room, done. Use Select to send a batch to the same room, and Board view to see a whole room together before you commit.",
+   art:"<b>Try it on the example</b><br>There is one example piece in your list. Change where it goes, then delete it when you are ready \u2014 it does not count against your free items."},
+  {h:"Hand it to the crew",
+   p:"Share sends a single file with every photo in it \u2014 no account, no app, works offline. Print gives a photo sheet per room, room signs for the doors, and a load plan for the truck.",
+   art:"<b>Your photos are yours</b><br>They stay in your camera roll, and Save file hands you one file with everything in it that opens anywhere, forever. First ten items are free; after that pick a one-off move, a pack of jobs, or a year-round Keeper account."}
+];
+
+function showTour(){
+  var i = 0;
+  var el = document.createElement("div");
+  el.className = "tour";
+  document.body.appendChild(el);
+  function paint(){
+    var t = TOUR[i];
+    el.innerHTML = '<div class="tour-in">' +
+      '<h2>' + esc(t.h) + '</h2><p>' + esc(t.p) + '</p>' +
+      '<div class="demoart">' + t.art + '</div>' +
+      '<div class="tour-nav"><div class="dots">' +
+        TOUR.map(function(_, n){ return '<i class="' + (n === i ? "on" : "") + '"></i>'; }).join("") +
+      '</div>' +
+      (i > 0 ? '<button class="btn ghost" data-t="back">Back</button>' : '') +
+      '<button class="btn" data-t="next">' + (i === TOUR.length - 1 ? "Start" : "Next") + '</button>' +
+      '</div></div>';
+    el.querySelectorAll("[data-t]").forEach(function(b){
+      b.addEventListener("click", function(){
+        if (b.dataset.t === "back"){ i--; paint(); return; }
+        if (i < TOUR.length - 1){ i++; paint(); return; }
+        el.remove();
+        account.onboarded = true;
+        saveMeta(true);
+        if (i === TOUR.length - 1) setTimeout(function(){ $("#settingsBtn").focus(); }, 100);
+      });
+    });
+  }
+  paint();
+}
+
+/* A device arriving on a project that already has jobs is asked which one it
+   is joining. Shown once; the Jobs button does the same thing afterwards. */
+function showJobChooser(){
+  return new Promise(function(done){
+    var el = document.createElement("div");
+    el.className = "jpick";
+    document.body.appendChild(el);
+    var list = sortedJobs().filter(function(j){ return !j.archived; });
+    var busy = false;
+
+    el.innerHTML = '<div class="jpick-in">' +
+      '<h2>Which job are you on?</h2>' +
+      '<p>This project already has ' + list.length + ' job' + (list.length === 1 ? "" : "s") +
+        ' in it. Open the one you were sent, or start a fresh one of your own — ' +
+        'jobs never see each other’s pieces or photos.</p>' +
+      '<div class="jpick-list">' + list.map(function(j){
+        return '<button class="jpick-row" data-pick="' + esc(j.id) + '">' +
+          '<span class="jpick-name">' + esc(j.name) +
+            (j.closed ? ' <span class="badge closed">Complete</span>' : '') + '</span>' +
+          '<span class="jpick-sub" data-sub="' + esc(j.id) + '">' +
+            esc(j.client ? j.client + " · " : "") + esc(moveDateLabel(j)) + '</span>' +
+          '</button>';
+      }).join("") + '</div>' +
+      '<div class="jpick-or">or</div>' +
+      '<input type="text" id="pickName" placeholder="Name a new job — e.g. Mom’s house" ' +
+        'autocapitalize="words">' +
+      '<div class="row"><button class="btn ghost" id="pickNew">Start a new job</button></div>' +
+      '<div class="status" id="pickMsg" hidden></div>' +
+      '<div class="stub">You can switch jobs any time from the name at the top of the screen.</div>' +
+      '</div>';
+
+    var msg = el.querySelector("#pickMsg");
+    function say(txt, cls){
+      msg.hidden = false;
+      msg.className = "status" + (cls ? " " + cls : "");
+      msg.textContent = txt;
+    }
+    async function settle(how){
+      try { await store.set("fm:picked", "1"); } catch(e){}
+      el.remove();
+      done(how);
+    }
+
+    Array.prototype.forEach.call(el.querySelectorAll("[data-pick]"), function(b){
+      b.addEventListener("click", async function(){
+        if (busy) return;
+        busy = true;
+        b.classList.add("loading");
+        var id = b.dataset.pick;
+        try{
+          if (id !== jobId) await openJob(id);
+          else { try { await store.set("fm:lastjob", jobId); } catch(e){} }
+        }catch(e){
+          busy = false;
+          b.classList.remove("loading");
+          say("That job would not open. Check your connection and try again.", "no");
+          return;
+        }
+        await settle("open");
+      });
+    });
+
+    el.querySelector("#pickNew").addEventListener("click", async function(){
+      if (busy) return;
+      var name = el.querySelector("#pickName").value.trim();
+      if (!name){ say("Give the new job a name first.", "no"); return; }
+      busy = true;
+      var made = null;
+      try { made = await createJob(name, ""); } catch(e){}
+      if (!made){
+        busy = false;
+        say("This account has used all the jobs on its plan. Open one of the jobs above, " +
+            "or ask whoever set this up for a code.", "no");
+        return;
+      }
+      await settle("new");
+    });
+
+    /* Piece counts make the choice obvious, but they need a round trip each,
+       so fill them in after the list is already on screen. */
+    list.slice(0, 8).forEach(function(j){
+      jobCountRemote(j).then(function(n){
+        if (n == null) return;
+        var sub = el.querySelector('[data-sub="' + j.id + '"]');
+        if (!sub) return;
+        sub.textContent = n + " piece" + (n === 1 ? "" : "s") + " · " +
+          (j.client ? j.client + " · " : "") + moveDateLabel(j);
+      }).catch(function(){});
+    });
+  });
+}
+
+function startOnboarding(){
+  if (account.onboarded) { checkPlan(); return; }
+  if (!items.length){
+    items.push(demoItem());
+    render();
+  }
+  showTour();
+}
+
+async function firstRun(){
+  if (needsChooser){
+    var how = await showJobChooser();
+    needsChooser = false;
+    renderFoot();
+    checkPlan();
+    /* Someone opening a list that is already full of pieces does not need the
+       walkthrough. Someone starting their own job does, even though the shared
+       account was marked onboarded long ago by whoever set it up. */
+    if (how === "new"){
+      account.onboarded = false;
+      startOnboarding();
+    } else if (!realItems().length){
+      startOnboarding();
+    } else {
+      account.onboarded = true;
+      saveMeta(true);
+    }
+    return;
+  }
+  startOnboarding();
+}
+
+load().then(firstRun);
 </script>
 </body>
 </html>
